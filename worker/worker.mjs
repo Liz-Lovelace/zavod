@@ -59,7 +59,7 @@ async function work() {
 }
 
 async function fetchHead(path, options = {}) {
-  const url = `http://localhost:${process.env.HEAD_PORT}${path}`;
+  const url = `${process.env.HEAD_IP}:${process.env.HEAD_PORT}${path}`;
   const headers = {
     'Content-Type': 'application/json',
     'Authorization': process.env.WORKER_SECRET,
