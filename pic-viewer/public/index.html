@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=0.6">
+  <title>Pic Viewer</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 0;
+      margin: 0;
+    }
+
+    button {
+      padding: 8px 30px;
+      border-radius: 5px;
+      border: 2px solid white;
+    }
+
+    .controls {
+      background-color: #f3f3f3;
+      padding: 20px 40px;
+      margin-bottom: 20px;
+    }
+
+    .refresh-btn {
+      background-color: #078f02;
+      color: white;
+      font-weight: bold;
+    }
+
+    .refresh-btn:active {
+      background-color: #036300;
+    }
+
+    #error-message {
+      color: red;
+      font-family: monospace;
+    }
+
+    #image-container {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .image-wrapper {
+      border: 1px solid black;
+    }
+
+    .image-wrapper img {
+      height: 250px;
+      margin: auto;
+      display: block;
+    }
+
+    .image-wrapper p {
+      margin: 5px 10px;
+    }
+
+    .slider-box {
+      margin-bottom: 20px;
+    }
+
+    .slider-container {
+      position: relative;
+      height: 6px;
+      background: #e4e4e4; 
+      border-radius: 5px; 
+      width: 400px;
+    }
+
+
+    .slider-container .visual-slider {
+      height: 6px;
+      left: 1%;
+      right: 0;
+      position: absolute;
+      border-radius: 5px;
+      background: #078f02;
+    }
+
+    .range-input {
+      position: relative;
+    }
+
+    .range-input input {
+      position: absolute;
+      width: 400px;
+      height: 5px;
+      top: -8px;
+      background: none;
+      pointer-events: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+    }
+
+    .range-input input::-webkit-slider-thumb {
+      height: 18px;
+      width: 18px;
+      border-radius: 50%;
+      background: #555;
+      pointer-events: auto;
+      -webkit-appearance: none;
+    }
+
+    .range-input input::-moz-range-thumb {
+      height: 18px;
+      width: 18px;
+      border-radius: 50%;
+      background: #555;
+      pointer-events: auto;
+      -moz-appearance: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="controls">
+    <h1> Zavod picture viewer </h1>
+    <div id="sliders"></div>
+    <div>
+      <label for="image-count">Number of images to display:</label>
+      <input type="number" id="image-count" value="10" min="1">
+    </div>
+    <button class="refresh-btn" onclick="refreshImages()">Refresh Images</button>
+  </div>
+  <div id="image-container">
+    <p id="error-message"></p>
+  </div>
+  <script>
+    let select = { 
+      where: { },
+    }
+
+    let slidableProperties = [
+      {
+        updateParam: 'averageAllBrightness',
+        min: 0,
+        max: 255,
+        title: 'Average brightness',
+      },
+      {
+        updateParam: 'uniqueAllColorsCount',
+        min: 0,
+        max: 10000,
+        title: 'Unique colors (low values are illustrations)',
+      },
+      {
+        updateParam: 'uniqueEdgeColorsCount',
+        min: 0,
+        max: 5000,
+        title: 'Unique edge colors',
+      },
+      {
+        updateParam: 'medianEdgeBrightness',
+        min: 0,
+        max: 255,
+        title: 'Median edge brightness',
+      },
+    ]
+
+    for (let settings of slidableProperties) {
+      select.where[settings.updateParam] = {};
+      addSlider( {
+        ...settings,
+        updateParam: select.where[settings.updateParam],
+      });
+    }
+
+    function addSlider(settings) {
+      sliders.appendChild(createElementFromHTML(`
+      <div class="slider-box">
+        <p id="${settings.title}-p"> </p>
+        <div class="slider-container">
+          <div class="visual-slider" id="${settings.title}-slider"></div>
+        </div>
+        <div class="range-input">
+          <input type="range" class="min-range" id="${settings.title}-input1" min="${settings.min}" max="${settings.max}" value="${settings.min}">
+          <input type="range" class="max-range" id="${settings.title}-input2" min="${settings.min}" max="${settings.max}" value="${settings.max}">
+        </div>
+      </div>
+      `));
+      
+      const rangeSlider = document.getElementById(`${settings.title}-slider`);
+      const minInput = document.getElementById(`${settings.title}-input1`);
+      const maxInput = document.getElementById(`${settings.title}-input2`);
+      const text = document.getElementById(`${settings.title}-p`);
+
+      let updateSlider = () => {
+        const min = parseInt(minInput.value);
+        const max = parseInt(maxInput.value);
+
+        if (max - min < 5) {
+          if (minInput === document.activeElement) {
+            minInput.value = max - 5;
+          } else {
+            maxInput.value = min + 5;
+          }
+        } else {
+          rangeSlider.style.left = `${(min / settings.max) * 100 + 1}%`;
+          rangeSlider.style.right = `${100 - (max / settings.max) * 100}%`;
+          settings.updateParam.gte = min;
+          settings.updateParam.lte = max;
+          text.innerHTML = `${min} - ${max} ${settings.title}`
+        }
+      }
+
+      minInput.addEventListener("input", updateSlider);
+      maxInput.addEventListener("input", updateSlider);
+
+      updateSlider();
+    }
+
+
+    async function refreshImages() {
+      const imageContainer = document.getElementById('image-container');
+      imageContainer.innerHTML = '<p id="error-message"></p>';
+
+      select.take = parseInt(document.getElementById('image-count').value);
+
+      const images = await getImages();
+      if (images) {
+        displayImages(images);
+      }
+    }
+
+    async function getImages() {
+      try {
+        const response = await fetch('/images', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(select),
+        });
+        const images = await response.json();
+        console.log(images);
+        return images;
+      } catch (error) {
+        console.error('Error fetching images:', error);
+        displayError(error.message);
+      }
+    }
+
+    function displayImages(images) {
+      const imageContainer = document.getElementById('image-container');
+      let html = '';
+
+      images.forEach(image => {
+        const properties = {
+          'Average brightness': image.averageAllBrightness,
+          'Median edge brightness': image.medianEdgeBrightness,
+          'Unique colors': image.uniqueAllColorsCount,
+          'Unique edge colors': image.uniqueEdgeColorsCount,
+          'Height': image.height,
+          'Width': image.width,
+        };
+
+        let propertyHtml = '';
+        for (const [label, value] of Object.entries(properties)) {
+          propertyHtml += `
+            ${label}: ${Math.round(value)} <br/>
+          `;
+        }
+
+        html += `
+          <div class="image-wrapper">
+            <img src="${image.url}" alt="Image">
+            <p>
+              ${propertyHtml}
+            </p>
+          </div>
+        `;
+      });
+
+      imageContainer.innerHTML = html;
+    }
+
+    function displayError(errorMessage) {
+      const errorElement = document.getElementById('error-message');
+      errorElement.textContent = errorMessage;
+    }
+
+    function createElementFromHTML(htmlString) {
+      var div = document.createElement('div');
+      div.innerHTML = htmlString.trim();
+      return div.firstChild;
+    }
+  </script>
+</body>
+</html>

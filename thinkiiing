@@ -1,0 +1,45 @@
+# flow:
+(head vps)
+- run migrations
+- download feeds and supporting materials (like cabinets for donplafon)
+- reconstruct PURE database
+- serve tasks
+  - downloadImage task
+    - serve IMAGE which doesn't have a download_URL
+    - get result/error and write IMAGE
+  - processImage task
+    - serve IMAGE with download_URL but without anal
+    - get result/error and update IMAGE
+  - videoRender task
+    - serve item, made from fully valid and formatted item={pure_item, images}
+    - get result/error and write to VIDEO_RENDER
+- start container(s)
+
+(worker container)
+- request task from head
+- proceed to worker script
+- return result or error
+
+> processImageWorker
+- download image from S3 (or throw downloadError)
+- anal image (or throw analError)
+- return anal
+
+> downloadImageWorker
+- download image from remote (or throw downloadError)
+- send image to S3 (or throw uploadError)
+- return downloadURL
+
+> videoRenderWorker
+- render video with all the props and settings (or throwRenderError)
+- upload to S3 (or throw uploadError)
+- return url
+
+later:
+- [?] write image analysis stats function
+- [ ] report on image analysis on donplafon
+  - [x] <500x500
+  - [x] instructions
+  - [x] [too dark
+  - [x] too bright]
+  - [-] enoughness stats

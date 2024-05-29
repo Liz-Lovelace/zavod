@@ -1,0 +1,12 @@
+node_modules
+dist
+.DS_Store
+.env
+out
+.s3cfg
+.vercel
+head/donplafon/materials/propertyDb.csv
+head/meloman/materials/*.xml
+head/vamsvet/materials/vamsvetFeed.xml
+prisma/database.db
+
