@@ -2,7 +2,7 @@ import express from 'express';
 import { getPureItems, saveImageAnalysis, getImages, getAllImageIds } from './database.mjs';
 import dotenv from 'dotenv';
 import chalk from 'chalk';
-import { createServer } from './computeMaster.mjs';
+import { createServer, shutdownCompute } from './computeMaster.mjs';
 
 dotenv.config();
 
@@ -80,6 +80,7 @@ app.post('/task', authenticateWorker, async(req, res) => {
   res.json({ message: 'thanks' });
 });
 
+// todo: auth
 app.get('/workerStuff', (req, res) => {
   const workerStuffPath = new URL('../workerStuff.zip', import.meta.url).pathname;
   res.download(workerStuffPath, 'workerStuff.zip');
@@ -99,7 +100,8 @@ app.listen(process.env.HEAD_PORT, async() => {
   wget ${process.env.HEAD_IP}:${process.env.HEAD_PORT}/workerStuff &>> /root/errors.txt
   unzip workerStuff.zip &>> /root/errors.txt
   `;
-  await createServer()
+  await shutdownCompute();
+  await createServer(startupScriptBody)
 
   console.log('composing tasks...');
   console.time('composed tasks');
