@@ -1,4 +1,4 @@
-import { download } from '../utils.mjs';
+import { download } from '../../utils.mjs';
 import chalk from 'chalk';
 import purifyItem from './itemsPurifier.mjs';
 import xml2js from 'xml2js';

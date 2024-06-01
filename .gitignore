@@ -5,8 +5,8 @@ dist
 out
 .s3cfg
 .vercel
-head/donplafon/materials/propertyDb.csv
-head/meloman/materials/*.xml
-head/vamsvet/materials/vamsvetFeed.xml
+puresUpdater/donplafon/materials/propertyDb.csv
+puresUpdater/meloman/materials/*.xml
+puresUpdater/vamsvet/materials/vamsvetFeed.xml
 prisma/database.db
 workerStuff.zip

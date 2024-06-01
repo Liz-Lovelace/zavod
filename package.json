@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Don plafon video renderer",
   "scripts": {
-    "update-pures": "node head/updatePures.mjs",
+    "update-pures": "node puresUpdater/updatePures.mjs",
     "head": "node head/head.mjs",
     "worker": "node worker/worker.mjs",
     "start-remotion": "remotion studio src/indexStill.jsx",

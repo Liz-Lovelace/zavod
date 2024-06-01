@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import getVamsvetPures from './vamsvet/getVamsvetPures.mjs';
 import getDonplafonPures from './donplafon/getDonplafonPures.mjs';
 import getMelomanPures from './meloman/getMelomanPures.mjs';
-import { dumpClientPureItems, getAllPureItemIds, getImages, getPureItems, savePureItems } from './database.mjs';
+import { dumpClientPureItems, getAllPureItemIds, getImages, getPureItems, savePureItems } from '../database.mjs';
 
 let pureItemGetters = {
   'donplafon': getDonplafonPures,
