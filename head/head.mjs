@@ -2,6 +2,7 @@ import express from 'express';
 import { getPureItems, saveImageAnalysis, getImages, getAllImageIds } from './database.mjs';
 import dotenv from 'dotenv';
 import chalk from 'chalk';
+import { createServer } from './computeMaster.mjs';
 
 dotenv.config();
 
@@ -79,12 +80,30 @@ app.post('/task', authenticateWorker, async(req, res) => {
   res.json({ message: 'thanks' });
 });
 
+app.get('/workerStuff', (req, res) => {
+  const workerStuffPath = new URL('../workerStuff.zip', import.meta.url).pathname;
+  res.download(workerStuffPath, 'workerStuff.zip');
+});
+
 app.listen(process.env.HEAD_PORT, async() => {
   console.log(`Server is running on http://localhost:${process.env.HEAD_PORT}/task`);
 
+  let startupScriptBody = `
+  #!/bin/bash
+
+  apt install htop npm screen neovim -y &>> /root/errors.txt
+  npm install -g yarn n &>> /root/errors.txt
+  n latest &>> /root/errors.txt
+  hash -r &>> /root/errors.txt
+  node --version &>> /root/errors.txt
+  wget ${process.env.HEAD_IP}:${process.env.HEAD_PORT}/workerStuff &>> /root/errors.txt
+  unzip workerStuff.zip &>> /root/errors.txt
+  `;
+  await createServer()
+
   console.log('composing tasks...');
   console.time('composed tasks');
-  await composeTasks();
+  // await composeTasks();
   console.log(chalk.green(`prepared ${tasks.length} tasks`));
   console.timeEnd('composed tasks');
 });

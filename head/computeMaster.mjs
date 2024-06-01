@@ -3,14 +3,23 @@ import chalk from 'chalk';
 
 dotenv.config();
 
-main()
+let startupScriptId = '43f155bd-1e24-4171-90e6-0e72f134dc08';
+
 async function main() {
-  // ams vc2-1c-1gb 2136 a479b2db-e82e-44b9-8b95-7a2600551860 zavodWorker
-  // await createServer();
-  shutdownCompute();
+  let startupScriptBody = `
+  #!/bin/bash
+
+  apt install htop npm screen neovim -y &>> /root/errors.txt
+  npm install -g yarn n &>> /root/errors.txt
+  n latest &>> /root/errors.txt
+  hash -r &>> /root/errors.txt
+  node --version &>> /root/errors.txt
+  `;
+  await createServer(startupScriptBody);
+  // await shutdownCompute();
 }
 
-async function shutdownCompute(){
+export async function shutdownCompute(){
   let servers = await listServers()
   console.log('Deleting', servers.length, 'servers...')
   for (let server of servers) {
@@ -22,7 +31,12 @@ export async function listServers() {
   return (await vultrAPI('GET', 'instances?per_page=500&label=zavodWorker')).instances;
 }
 
-export async function createServer() {
+export async function createServer(startupScriptBody) {
+  await vultrAPI('PATCH', `startup-scripts/${startupScriptId}`, {
+    name: 'startupScript',
+    script: btoa(startupScriptBody),
+  });
+
   let res = await vultrAPI('POST', 'instances', {
     "region": "ams",
     "plan": "vc2-1c-1gb",
@@ -30,6 +44,7 @@ export async function createServer() {
     "os_id": 2136,
     "attach_vpc2": ["a479b2db-e82e-44b9-8b95-7a2600551860"],
     "backups": "disabled",
+    "script_id": startupScriptId,
   });
 
   console.log(chalk.green('Created new server'))
@@ -61,7 +76,7 @@ export async function vultrAPI(method, endpoint, body) {
   }
 
   if (response.status == 204) {
-    return;
+    return '204 response';
   }
 
   return await response.json();

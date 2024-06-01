@@ -1,6 +1,6 @@
 #!/bin/bash
 
-zip workerStuff.zip -r worker .env package.json package-lock.json config.mjs
+zip workerStuff.zip -r worker .env node_modules package.json config.mjs
 
 cd prisma
 zip transfer-db.zip database.db
