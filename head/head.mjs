@@ -81,31 +81,32 @@ app.post('/task', authenticateWorker, async(req, res) => {
 });
 
 // todo: auth
-app.get('/workerStuff', (req, res) => {
+app.get('/workerStuff.zip', authenticateWorker, (req, res) => {
   const workerStuffPath = new URL('../workerStuff.zip', import.meta.url).pathname;
   res.download(workerStuffPath, 'workerStuff.zip');
 });
 
+
+let startupScriptBody = `#!/bin/bash
+touch /root/abc
+apt install htop npm screen neovim -y &>> /root/errors.txt
+npm install -g yarn n &>> /root/errors.txt
+n latest &>> /root/errors.txt
+hash -r &>> /root/errors.txt
+node --version &>> /root/errors.txt
+wget --header="Authorization:${process.env.WORKER_SECRET}" ${process.env.HEAD_IP}:${process.env.HEAD_PORT}/workerStuff &>> /root/errors.txt
+unzip workerStuff.zip &>> /root/errors.txt
+npm run worker &>> /root/errors.txt`;
+
+
 app.listen(process.env.HEAD_PORT, async() => {
   console.log(`Server is running on http://localhost:${process.env.HEAD_PORT}/task`);
-
-  let startupScriptBody = `
-  #!/bin/bash
-
-  apt install htop npm screen neovim -y &>> /root/errors.txt
-  npm install -g yarn n &>> /root/errors.txt
-  n latest &>> /root/errors.txt
-  hash -r &>> /root/errors.txt
-  node --version &>> /root/errors.txt
-  wget ${process.env.HEAD_IP}:${process.env.HEAD_PORT}/workerStuff &>> /root/errors.txt
-  unzip workerStuff.zip &>> /root/errors.txt
-  `;
   await shutdownCompute();
   await createServer(startupScriptBody)
 
   console.log('composing tasks...');
   console.time('composed tasks');
-  // await composeTasks();
+  await composeTasks();
   console.log(chalk.green(`prepared ${tasks.length} tasks`));
   console.timeEnd('composed tasks');
 });
