@@ -1,6 +1,6 @@
 import express from 'express';
 import { getPureItems, saveImageAnalysis, getImages, getAllImageIds } from '../database.mjs';
-import dotenv, { config } from 'dotenv';
+import dotenv from 'dotenv';
 import chalk from 'chalk';
 import { createServer, shutdownCompute } from './computeMaster.mjs';
 import moment from 'moment';
