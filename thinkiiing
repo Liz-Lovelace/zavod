@@ -35,11 +35,5 @@
 - upload to S3 (or throw uploadError)
 - return url
 
-later:
-- [?] write image analysis stats function
-- [ ] report on image analysis on donplafon
-  - [x] <500x500
-  - [x] instructions
-  - [x] [too dark
-  - [x] too bright]
-  - [-] enoughness stats
+GENIUS IDEA:
+to find instructions, resize an image to a standard w/h, compress using jpeg, and save its size.

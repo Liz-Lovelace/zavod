@@ -116,9 +116,11 @@ npm run worker &>> /root/errors.txt`;
 app.listen(process.env.HEAD_PORT, async() => {
   console.log(`Server is running on http://localhost:${process.env.HEAD_PORT}/task`);
   await shutdownCompute();
+  /*
   for (let i = 0; i < config.serverCount; i++) {
     await createServer(startupScriptBody)
   }
+  */
 
   console.log('composing tasks...');
   console.time('composed tasks');
