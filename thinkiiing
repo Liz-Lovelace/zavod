@@ -1,39 +1,13 @@
-# flow:
-(head vps)
-- run migrations
-- download feeds and supporting materials (like cabinets for donplafon)
-- reconstruct PURE database
-- serve tasks
-  - downloadImage task
-    - serve IMAGE which doesn't have a download_URL
-    - get result/error and write IMAGE
-  - processImage task
-    - serve IMAGE with download_URL but without anal
-    - get result/error and update IMAGE
-  - videoRender task
-    - serve item, made from fully valid and formatted item={pure_item, images}
-    - get result/error and write to VIDEO_RENDER
-- start container(s)
+todo:
+- [x] set up S3 cache
+- [ ] make new worker that:
+  - checks what images are already on s3
+  - downloads other images to s3
+- [x] refactor head
 
-(worker container)
-- request task from head
-- proceed to worker script
-- return result or error
-
-> processImageWorker
-- download image from S3 (or throw downloadError)
-- anal image (or throw analError)
-- return anal
-
-> downloadImageWorker
-- download image from remote (or throw downloadError)
-- send image to S3 (or throw uploadError)
-- return downloadURL
-
-> videoRenderWorker
-- render video with all the props and settings (or throwRenderError)
-- upload to S3 (or throw uploadError)
-- return url
+- [ ] make image analyzer use the s3, measure speed increase
+- [ ] make image analyzer save the product id for each analysis
+- [ ] make image analyzer do the GENIUS IDEA
 
 GENIUS IDEA:
 to find instructions, resize an image to a standard w/h, compress using jpeg, and save its size.

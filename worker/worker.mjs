@@ -1,10 +1,12 @@
 import dotenv from 'dotenv';
 import imageAnalysisWorker from './imageAnalysisWorker.mjs';
+import imageDownloadWorker from './imageDownloadWorker.mjs';
 
 dotenv.config();
 
 const workerLookup = {
   'analyzeImage': imageAnalysisWorker,
+  'downloadImage': imageDownloadWorker,
 };
 
 workForever();
@@ -50,6 +52,10 @@ async function work() {
   }
   finally {
     console.timeEnd(task);
+  }
+
+  if (task == 'downloadImage') {
+    return;
   }
 
   await fetchHead('/task', {

@@ -1,9 +1,7 @@
 import sharp from 'sharp';
 
 export default async function imageAnalysisWorker({ url, index, pureItemId }) {
-  console.time('fetch')
   const  imageBuffer = await fetch(url).then(res => res.arrayBuffer());
-  console.timeEnd('fetch')
   console.log('analyzing image', url);
   return await analyzeImage(imageBuffer);
 }
