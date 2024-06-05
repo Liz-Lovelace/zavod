@@ -1,12 +1,11 @@
 todo:
-- [x] set up S3 cache
-- [ ] make new worker that:
-  - checks what images are already on s3
-  - downloads other images to s3
-- [x] refactor head
-
+- [ ] make the thing skip downloaded files properly
+- [ ] integrate new donplafon feed
+- [ ] finish the speed website
+- [ ] make distributed system shut down on all tasks completed
+- [ ] re-run the image downloader on distributed system
 - [ ] make image analyzer use the s3, measure speed increase
-- [ ] make image analyzer save the product id for each analysis
+- [ ] make image analyzer save the product id to db for each analysis
 - [ ] make image analyzer do the GENIUS IDEA
 
 GENIUS IDEA:

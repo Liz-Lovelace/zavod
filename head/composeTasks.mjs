@@ -14,10 +14,14 @@ export async function composeTasks() {
   return tasks;
 }
 
+await downloadImageTasks()
 async function downloadImageTasks() {
   let tasks = [];
-  let pureItems = await getPureItems({where: {client: 'donplafon'}});
-  let downloadedImages = await listObjects(process.env.S3_IMAGECACHE_BUCKET_NAME)
+  console.time('got cached images')
+  let downloadedImages = new Set(await listObjects(process.env.S3_IMAGECACHE_BUCKET_NAME))
+  console.log(downloadedImages)
+  console.timeEnd('got cached images')
+  let pureItems = await getPureItems({where: {client: 'vamsvet'}});
   pureItems.forEach(({ remoteImages }) => {
     remoteImages.forEach((url, index) => {
       let extension = url.split('.').pop();
@@ -59,5 +63,5 @@ async function analyzeImageTasks() {
       });
     });
   });
-  return pureItems;
+  return tasks;
 }
