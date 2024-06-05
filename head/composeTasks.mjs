@@ -21,7 +21,7 @@ async function downloadImageTasks() {
   let downloadedImages = new Set(await listObjects(process.env.S3_IMAGECACHE_BUCKET_NAME))
   console.log(downloadedImages)
   console.timeEnd('got cached images')
-  let pureItems = await getPureItems({where: {client: 'vamsvet'}});
+  let pureItems = await getPureItems();
   pureItems.forEach(({ remoteImages }) => {
     remoteImages.forEach((url, index) => {
       let extension = url.split('.').pop();
