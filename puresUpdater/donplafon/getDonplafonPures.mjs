@@ -1,5 +1,5 @@
 import { parse } from 'csv-parse/sync';
-import { memo, download } from '../../utils.mjs';
+import { memo, download } from '../../lib/utils.mjs';
 import FS from 'fs';
 import purifyItem from './itemsPurifier.mjs';
 

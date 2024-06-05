@@ -17,10 +17,8 @@ export async function composeTasks() {
 await downloadImageTasks()
 async function downloadImageTasks() {
   let tasks = [];
-  console.time('got cached images')
+  // listObjects takes a while on high-latency internet, you can remove it for testing
   let downloadedImages = new Set(await listObjects(process.env.S3_IMAGECACHE_BUCKET_NAME))
-  console.log(downloadedImages)
-  console.timeEnd('got cached images')
   let pureItems = await getPureItems();
   pureItems.forEach(({ remoteImages }) => {
     remoteImages.forEach((url, index) => {

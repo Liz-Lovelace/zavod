@@ -1,5 +1,5 @@
 todo:
-- [ ] make the thing skip downloaded files properly
+- [x] make the thing skip downloaded files properly
 - [ ] integrate new donplafon feed
 - [ ] finish the speed website
 - [ ] make distributed system shut down on all tasks completed
