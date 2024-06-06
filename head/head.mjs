@@ -21,23 +21,12 @@ let completedTasks = [];
 const app = express();
 app.use(express.json());
 
-let startupScriptBody = `#!/bin/bash
-touch /root/abc
-apt install htop npm screen neovim -y &>> /root/errors.txt
-npm install -g yarn n &>> /root/errors.txt
-n latest &>> /root/errors.txt
-hash -r &>> /root/errors.txt
-node --version &>> /root/errors.txt
-wget --header="Authorization:${process.env.WORKER_SECRET}" ${process.env.HEAD_IP}:${process.env.HEAD_PORT}/workerStuff.zip &>> /root/errors.txt
-unzip workerStuff.zip &>> /root/errors.txt
-npm run worker &>> /root/errors.txt`;
-
 let startingUp = true;
 startup();
 async function startup() {
   await shutdownCompute();
   for (let i = 0; i < config.serverCount; i++) {
-    await createServer(startupScriptBody)
+    await createServer()
   }
 
   console.log('composing tasks...');

@@ -31,7 +31,18 @@ export async function listServers() {
   return (await vultrAPI('GET', 'instances?per_page=500&label=zavodWorker')).instances;
 }
 
-export async function createServer(startupScriptBody) {
+let startupScriptBody = `#!/bin/bash
+touch /root/abc
+apt install htop npm screen neovim -y &>> /root/errors.txt
+npm install -g yarn n &>> /root/errors.txt
+n latest &>> /root/errors.txt
+hash -r &>> /root/errors.txt
+node --version &>> /root/errors.txt
+wget --header="Authorization:${process.env.WORKER_SECRET}" ${process.env.HEAD_IP}:${process.env.HEAD_PORT}/workerStuff.zip &>> /root/errors.txt
+unzip workerStuff.zip &>> /root/errors.txt
+npm run worker &>> /root/errors.txt`;
+
+export async function createServer() {
   await vultrAPI('PATCH', `startup-scripts/${startupScriptId}`, {
     name: 'startupScript',
     script: btoa(startupScriptBody),
