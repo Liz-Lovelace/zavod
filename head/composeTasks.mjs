@@ -3,13 +3,14 @@ import chalk from 'chalk';
 import { composeAnalytics } from './workerPerformanceAnalytics.mjs';
 import { shuffle } from '../lib/utils.mjs';
 import config from '../config.mjs';
-import { listObjects } from '../lib/storage.mjs';
+import { cachedImageURLfromRemoteURL, listObjects } from '../lib/storage.mjs';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
 export async function composeTasks() {
-  let tasks = await downloadImageTasks();
+  // let tasks = await downloadImageTasks();
+  let tasks = await analyzeImageTasks();
   shuffle(tasks);
   return tasks;
 }
@@ -50,11 +51,14 @@ async function analyzeImageTasks() {
       if (completedImages.has(url)) {
         return;
       }
-  
+
+      let downloadURL = cachedImageURLfromRemoteURL(url)
+
       tasks.push({
         task: 'analyzeImage',
         taskData: {
-          url,
+          keyURL: url,
+          downloadURL,
           index,
         },
       });

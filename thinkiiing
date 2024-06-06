@@ -3,7 +3,7 @@ todo:
 - [x] integrate new donplafon feed
 - [x] finish the speed website
 - [x] make distributed system shut down on all tasks completed
-- [ ] re-run the image downloader on distributed system
+- [x] re-run the image downloader on distributed system
 - [ ] make image analyzer use the s3, measure speed increase
 - [ ] make image analyzer save the product id to db for each analysis
 - [ ] make image analyzer do the GENIUS IDEA

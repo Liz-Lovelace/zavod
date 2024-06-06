@@ -1,8 +1,8 @@
 import sharp from 'sharp';
 
-export default async function imageAnalysisWorker({ url, index, pureItemId }) {
-  const  imageBuffer = await fetch(url).then(res => res.arrayBuffer());
-  console.log('analyzing image', url);
+export default async function imageAnalysisWorker({ downloadURL, index, pureItemId }) {
+  const  imageBuffer = await fetch(downloadURL).then(res => res.arrayBuffer());
+  console.log('analyzing image', downloadURL);
   return await analyzeImage(imageBuffer);
 }
 
