@@ -1,13 +1,13 @@
 import express from 'express';
-import { getPureItems, saveImageAnalysis, getImages, getAllImageIds } from '../database.mjs';
+import { getPureItems, saveImageAnalysis, getImages, getAllImageIds } from '../lib/database.mjs';
 import dotenv from 'dotenv';
 import chalk from 'chalk';
 import { createServer, shutdownCompute } from './computeMaster.mjs';
 import moment from 'moment';
-import { composeAnalytics } from './workerPerformanceAnalytics.mjs';
 import { shuffle } from '../lib/utils.mjs';
 import config from '../config.mjs';
 import { composeTasks } from './composeTasks.mjs';
+import { composeAnalytics } from './workerPerformanceAnalytics.mjs';
 
 dotenv.config();
 
@@ -48,9 +48,11 @@ async function startup() {
   console.timeEnd('composed tasks');
 }
 
-app.get('/task', authenticateWorker, (req, res) => {
+app.get('/task', authenticateWorker, async (req, res) => {
   if (tasks.length === 0) {
-    return res.status(404).json({ message: 'No more tasks available' });
+    res.status(404).json({ message: 'No more tasks available' });
+    await shutdownCompute();
+    return 
   }
 
   completedTasks.push({
@@ -83,7 +85,7 @@ app.get('/workerStuff.zip', authenticateWorker, (req, res) => {
   res.download(workerStuffPath, 'workerStuff.zip');
 });
 
-app.get('/analytics', (req, res) => {
+app.get('/performance', (req, res) => {
   let analytics = composeAnalytics(completedTasks, tasks.length);
   res.json(analytics)
 });

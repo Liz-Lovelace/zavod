@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Zavod performance</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 12px;
+      margin: 0;
+      background-color: #111;
+      color: #eee;
+    }
+
+    #analytics-container span {
+      font-size: 1.5rem;
+    }
+
+    .servers-container {
+      display: flex;
+    }
+
+    .server-wrapper {
+      width: 150px;
+      height: 150px;
+      text-align: center;
+      padding: 4px 12px;
+      margin: 8px;
+      border: 4px solid #555;
+    }
+
+    .server-wrapper p {
+      margin: 2px 0;
+    }
+
+    .server-wrapper span {
+      font-size: 0.8rem !important;
+      margin-bottom: -0.3rem;
+      display: block;
+    }
+
+    .special-server {
+      background-color: #320a44;
+    }
+
+    .all-time-performance {
+      font-size: 2rem;
+    }
+
+    .recent-performance {
+      font-size: 2rem;
+    }
+
+  </style>
+</head>
+<body>
+  <h1> Zavod Performance </h1>
+  <div id="analytics-container"> </div>
+  <script>
+    refreshAnalytics();
+    async function refreshAnalytics() {
+      const analytics = await getPerformanceAnalytics();
+      if (analytics) {
+        displayAnalytics(analytics);
+      }
+    }
+
+    async function getPerformanceAnalytics() {
+      const response = await fetch('/performance', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const analytics = await response.json();
+      console.log(analytics);
+      return analytics;
+    }
+
+    function displayAnalytics(analytics) {
+      const analyticsContainer = document.getElementById('analytics-container');
+      let html = '';
+
+      let servers = analytics.serverPerformances;
+      let hoursSinceBegin = Math.round((Date.now() / 1000 - analytics.startTimestamp) / 3600 * 10) / 10
+      let hoursRemaining = Math.round(analytics.remainingTasks / servers.all.allTimeTasksPerHour * 10) / 10
+      html += `
+        <p>
+          Completed tasks: <span>${analytics.completedTasks} / ${analytics.completedTasks + analytics.remainingTasks} (${Math.round(analytics.completedTasks / analytics.remainingTasks * 100)}%)</span>
+        </p>
+        <p>
+          Approx. hours: <span>${hoursSinceBegin}/${hoursSinceBegin + hoursRemaining}</span>
+        </p>
+        <div class="servers-container">
+      `
+
+      console.log(servers)
+      Object.entries(servers).forEach(([ip, server]) => {
+        console.log(ip, server)
+        html += `
+          <div class="server-wrapper ${['all', 'average'].includes(ip) ? "special-server" : ""}">
+            <p class="ip">
+              ${ip}
+            </p>
+            <span> average tasks/h: </span>
+            <p class="all-time-performance">
+              ${Math.round(server.allTimeTasksPerHour/100)/10}k
+            </p>
+            <span> last minute tasks/h: </span>
+            <p class="recent-performance">
+              ${Math.round(server.lastMinTasksPerHour/100)/10}k
+            </p>
+          </div>
+        `;
+      });
+
+      html += '</div>'
+
+      analyticsContainer.innerHTML = html;
+    }
+  </script>
+</body>
+</html>

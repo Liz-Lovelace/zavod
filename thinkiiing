@@ -1,8 +1,8 @@
 todo:
 - [x] make the thing skip downloaded files properly
-- [ ] integrate new donplafon feed
-- [ ] finish the speed website
-- [ ] make distributed system shut down on all tasks completed
+- [x] integrate new donplafon feed
+- [x] finish the speed website
+- [x] make distributed system shut down on all tasks completed
 - [ ] re-run the image downloader on distributed system
 - [ ] make image analyzer use the s3, measure speed increase
 - [ ] make image analyzer save the product id to db for each analysis

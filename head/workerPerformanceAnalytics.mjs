@@ -1,6 +1,9 @@
 import moment from "moment";
 
 export function composeAnalytics(points, remainingTasksCount) {
+  if (!points || points.length == 0) {
+    return null
+  }
   let servers = splitByServer(points);
   let serverPerformances = {};
   for (let [server, points] of Object.entries(servers)) {
@@ -27,6 +30,9 @@ export function composeAnalytics(points, remainingTasksCount) {
 }
 
 function pointsPerHour(points) {
+  if (points.length == 0) {
+    return 0;
+  }
   let begin = points[0].timestamp;
   let end = points[points.length - 1].timestamp;
   return points.length / (end - begin) * 3600

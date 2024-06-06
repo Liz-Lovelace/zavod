@@ -1,4 +1,4 @@
-import { getPureItems, saveImageAnalysis, getImages, getAllImageIds } from '../database.mjs';
+import { getPureItems, saveImageAnalysis, getImages, getAllImageIds } from '../lib/database.mjs';
 import chalk from 'chalk';
 import { composeAnalytics } from './workerPerformanceAnalytics.mjs';
 import { shuffle } from '../lib/utils.mjs';
@@ -14,7 +14,6 @@ export async function composeTasks() {
   return tasks;
 }
 
-await downloadImageTasks()
 async function downloadImageTasks() {
   let tasks = [];
   // listObjects takes a while on high-latency internet, you can remove it for testing
