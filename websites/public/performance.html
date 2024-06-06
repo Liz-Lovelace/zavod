@@ -19,6 +19,7 @@
 
     .servers-container {
       display: flex;
+      flex-wrap: wrap;
     }
 
     .server-wrapper {
@@ -87,7 +88,7 @@
       let hoursRemaining = Math.round(analytics.remainingTasks / servers.all.allTimeTasksPerHour * 10) / 10
       html += `
         <p>
-          Completed tasks: <span>${analytics.completedTasks} / ${analytics.completedTasks + analytics.remainingTasks} (${Math.round(analytics.completedTasks / analytics.remainingTasks * 100)}%)</span>
+          Completed tasks: <span>${analytics.completedTasks} / ${analytics.completedTasks + analytics.remainingTasks} (${Math.round(analytics.completedTasks / (analytics.completedTasks + analytics.remainingTasks) * 100)}%)</span>
         </p>
         <p>
           Approx. hours: <span>${hoursSinceBegin}/${hoursSinceBegin + hoursRemaining}</span>
