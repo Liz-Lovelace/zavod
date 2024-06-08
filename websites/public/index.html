@@ -133,10 +133,22 @@
 
     let slidableProperties = [
       {
-        updateParam: 'averageAllBrightness',
+        updateParam: 'averageProductBrightness',
         min: 0,
         max: 255,
-        title: 'Average brightness',
+        title: 'Average product brightness',
+      },
+      {
+        updateParam: 'compressedSize',
+        min: 0,
+        max: 150000,
+        title: 'Size when compressed',
+      },
+      {
+        updateParam: 'productBgPixelShare',
+        min: 0,
+        max: 100,
+        title: 'Percentage of background pixels',
       },
       {
         updateParam: 'uniqueAllColorsCount',
@@ -247,8 +259,11 @@
 
       images.forEach(image => {
         const properties = {
-          'Average brightness': image.averageAllBrightness,
+          'Average product brightness': image.averageProductBrightness,
+          'Average product color': image.averageProductColor,
+          'Compressed size': image.compressedSize,
           'Median edge brightness': image.medianEdgeBrightness,
+          'Average edge color': image.averageEdgeColor,
           'Unique colors': image.uniqueAllColorsCount,
           'Unique edge colors': image.uniqueEdgeColorsCount,
           'Height': image.height,
@@ -256,9 +271,12 @@
         };
 
         let propertyHtml = '';
-        for (const [label, value] of Object.entries(properties)) {
+        for (let [label, value] of Object.entries(properties)) {
+          if (typeof value == 'float') {
+            value = Math.round(value)
+          }
           propertyHtml += `
-            ${label}: ${Math.round(value)} <br/>
+            ${label}: ${value} <br/>
           `;
         }
 

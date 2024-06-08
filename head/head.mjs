@@ -1,5 +1,5 @@
 import express from 'express';
-import { getPureItems, saveImageAnalysis, getImages, getAllImageIds } from '../lib/database.mjs';
+import { getPureItems, saveImageAnalysis, getImages, getAllImageIds, dumpImages } from '../lib/database.mjs';
 import dotenv from 'dotenv';
 import chalk from 'chalk';
 import { createServer, shutdownCompute } from './computeMaster.mjs';
@@ -21,9 +21,12 @@ let completedTasks = [];
 const app = express();
 app.use(express.json());
 
-let startingUp = true;
+let busy = true;
 startup();
 async function startup() {
+  if (config.dumpDB) {
+    await dumpImages();
+  }
   await shutdownCompute();
   for (let i = 0; i < config.serverCount; i++) {
     await createServer()
@@ -31,17 +34,18 @@ async function startup() {
 
   console.log('composing tasks...');
   console.time('composed tasks');
-  tasks = await composeTasks();
+  tasks = await composeTasks('donplafon');
   console.log(chalk.green(`prepared ${tasks.length} tasks`));
   console.timeEnd('composed tasks');
-  startingUp = false;
+  busy = false;
 }
 
 app.get('/task', authenticateWorker, async (req, res) => {
   if (tasks.length === 0) {
     res.status(404).json({ message: 'No more tasks available' });
-    if (!startingUp) {
+    if (!busy) {
       await shutdownCompute();
+      busy = true;
     }
     return 
   }
@@ -57,7 +61,8 @@ app.get('/task', authenticateWorker, async (req, res) => {
 
 app.post('/task', authenticateWorker, async(req, res) => {
   const result = req.body;
-  console.log(chalk.green('Received result:'));
+  console.log(chalk.green('Received result'));
+  console.log(result)
 
   try {
     await saverLookup[result.task](result);

@@ -49,6 +49,7 @@ async function work() {
   catch (err) {
     res.status = 'error';
     res.resultData.error = `${err}`;
+    console.log(err)
   }
   finally {
     console.timeEnd(task);

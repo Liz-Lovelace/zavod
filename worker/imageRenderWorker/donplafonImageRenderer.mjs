@@ -5,7 +5,7 @@ let overlays = {};
 
 main();
 async function main() {
-  const sourceImagePath = new URL('./testSource.png', import.meta.url);
+  const sourceImagePath = new URL('./testSource.jpg', import.meta.url);
   const sourceImageBuffer = await fs.readFile(sourceImagePath);
   console.time()
   await renderImage({

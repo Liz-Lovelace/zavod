@@ -1,12 +1,16 @@
 todo:
-- [x] make the thing skip downloaded files properly
-- [x] integrate new donplafon feed
-- [x] finish the speed website
-- [x] make distributed system shut down on all tasks completed
-- [x] re-run the image downloader on distributed system
-- [ ] make image analyzer use the s3, measure speed increase
-- [ ] make image analyzer save the product id to db for each analysis
-- [ ] make image analyzer do the GENIUS IDEA
+- [x] write db dump funcs
+- [x] make image analyzer save the product id to db for each analysis
+- [x] make image analyzer do the GENIUS IDEA
+- [x] write some helper stuff for:
+  - [x] toggling whether to mock compute
+  - [x] dumping db
+  - [-] task that should be done
+- [x] get bounding boxes and do shit based on that
 
-GENIUS IDEA:
-to find instructions, resize an image to a standard w/h, compress using jpeg, and save its size.
+- [ ] refactor
+- [ ] format code
+- [ ] run image analysis on distributed system, donplafon only
+
+todo:
+- [ ] at download, convert webp to png

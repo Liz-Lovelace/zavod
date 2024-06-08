@@ -13,10 +13,10 @@ app.use(express.json());
 app.use(express.static(new URL('public', import.meta.url).pathname));
 
 app.post('/images', async(req, res) => {
-  console.time('db');
-  const options = req.body;
+  let options = req.body;
+  console.log(options)
+  // options = {};
   let images = await prisma.image.findMany(options);
-  console.timeEnd('db');
 
   res.json(images);
 });

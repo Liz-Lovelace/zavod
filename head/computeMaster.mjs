@@ -1,35 +1,10 @@
 import dotenv from 'dotenv';
 import chalk from 'chalk';
+import config from '../config.mjs';
 
 dotenv.config();
 
 let startupScriptId = '43f155bd-1e24-4171-90e6-0e72f134dc08';
-
-async function main() {
-  let startupScriptBody = `
-  #!/bin/bash
-
-  apt install htop npm screen neovim -y &>> /root/errors.txt
-  npm install -g yarn n &>> /root/errors.txt
-  n latest &>> /root/errors.txt
-  hash -r &>> /root/errors.txt
-  node --version &>> /root/errors.txt
-  `;
-  await createServer(startupScriptBody);
-  // await shutdownCompute();
-}
-
-export async function shutdownCompute(){
-  let servers = await listServers()
-  console.log('Deleting', servers.length, 'servers...')
-  for (let server of servers) {
-    deleteServer(server.id)
-  }
-}
-
-export async function listServers() {
-  return (await vultrAPI('GET', 'instances?per_page=500&label=zavodWorker')).instances;
-}
 
 let startupScriptBody = `#!/bin/bash
 touch /root/abc
@@ -43,6 +18,10 @@ unzip workerStuff.zip &>> /root/errors.txt
 npm run worker &>> /root/errors.txt`;
 
 export async function createServer() {
+  if (config.mockCompute) {
+    console.log(chalk.yellow('mock created server'))
+    return;
+  }
   await vultrAPI('PATCH', `startup-scripts/${startupScriptId}`, {
     name: 'startupScript',
     script: btoa(startupScriptBody),
@@ -63,7 +42,23 @@ export async function createServer() {
   return res;
 }
 
-export async function deleteServer(id) {
+export async function shutdownCompute(){
+  if (config.mockCompute) {
+    console.log(chalk.yellow('mock deleted servers'))
+    return;
+  }
+  let servers = await listServers()
+  console.log('Deleting', servers.length, 'servers...')
+  for (let server of servers) {
+    deleteServer(server.id)
+  }
+}
+
+async function listServers() {
+  return (await vultrAPI('GET', 'instances?per_page=500&label=zavodWorker')).instances;
+}
+
+async function deleteServer(id) {
   let res = await vultrAPI('DELETE', `instances/${id}`);
   console.log(chalk.blue('Deleted server'))
   return res;

@@ -9,21 +9,32 @@ generator client {
 
 model PureItem {
   id            String   @id 
+  images        Image[]
+  remoteImages  String
   client        String
   offerId       String
   rawProperties String
-  remoteImages  String   
   createdAt     DateTime @default(now())
 }
 
 model Image {
   url                   String  @id
+  pureItem              PureItem @relation(fields: [pureItemId], references: [id])
+  pureItemId            String
   index                 Int  
   error                 String?
   medianEdgeBrightness  Float?
-  averageAllBrightness  Float? 
-  uniqueAllColorsCount  Float?
   uniqueEdgeColorsCount Float?
-  width                 Float? 
+  averageEdgeColor      String?
+  uniqueAllColorsCount  Float?
+  averageProductBrightness  Float? 
+  averageProductColor   String?
+  productBgPixelShare   Float?
+  width                 Float?
   height                Float?
-}
+  compressedSize        Int?
+  boundingBoxTop        Int?
+  boundingBoxBottom     Int?
+  boundingBoxLeft       Int?
+  boundingBoxRight      Int?
+  productBgPixelShare   Flo
