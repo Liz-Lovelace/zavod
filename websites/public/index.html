@@ -272,7 +272,6 @@
 
         let propertyHtml = '';
         for (let [label, value] of Object.entries(properties)) {
-          console.log(value, typeof value)
           if (typeof value == 'number') {
             value = Math.round(value)
           }

@@ -1,16 +1,7 @@
-todo:
-- [x] write db dump funcs
-- [x] make image analyzer save the product id to db for each analysis
-- [x] make image analyzer do the GENIUS IDEA
-- [x] write some helper stuff for:
-  - [x] toggling whether to mock compute
-  - [x] dumping db
-  - [-] task that should be done
-- [x] get bounding boxes and do shit based on that
-
-- [ ] refactor
+- [ ] refactor everything else
 - [ ] format code
 - [ ] run image analysis on distributed system, donplafon only
 
 todo:
 - [ ] at download, convert webp to png
+- [ ] check which kind of server is the most efficient

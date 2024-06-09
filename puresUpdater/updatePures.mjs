@@ -3,7 +3,7 @@ import getVamsvetPures from './vamsvet/getVamsvetPures.mjs';
 import getDonplafonPures from './donplafon/getDonplafonPures.mjs';
 import getMelomanPures from './meloman/getMelomanPures.mjs';
 import { dumpClientPureItems, dumpPureItems, getAllPureItemIds, getImages, getPureItems, savePureItems } from '../lib/database.mjs';
-import config from '../config.mjs'
+import config from '../config.mjs';
 
 let pureItemGetters = {
   'donplafon': getDonplafonPures,

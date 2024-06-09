@@ -1,3 +1,3 @@
-import { createServer } from "../head/computeMaster.mjs";
+import { createServer } from '../head/computeMaster.mjs';
 
 createServer();

@@ -1,5 +1,5 @@
 import { parse } from 'csv-parse/sync';
-import { memo, download } from '../../lib/utils.mjs';
+import { download } from '../../lib/utils.mjs';
 import FS from 'fs';
 import purifyItem from './itemsPurifier.mjs';
 
@@ -21,7 +21,7 @@ export default async function* getPureItems() {
   console.log(Object.keys(propsLookup).length, 'donplafon items total, but we\'ll only be looking at the ones in shops');
 
   let mergedItems = {};
-  for (let [offerId, shopIds] of Object.entries(offerIdToShops)) {
+  for (let offerId of Object.keys(offerIdToShops)) {
     let propItem = propsLookup[offerId];
 
     if (mergedItems[offerId] || !propItem) {
@@ -65,20 +65,4 @@ async function csvToIdDict(csvPath, idKey) {
 async function readCsv(path) {
   const csvStr = await fs.readFile(path, 'utf-8');
   return parse(csvStr, { columns: true, delimiter: ';', relax_quotes: true });
-}
-
-function dedupeActiveItems(items) {
-  const idKey = Object.keys(items[0])[0];
-  const seenIds = new Set();
-  const dedupedItems = [];
-
-  for (const item of items) {
-    const id = item[idKey];
-    if (!seenIds.has(id)) {
-      seenIds.add(id);
-      dedupedItems.push(item);
-    }
-  }
-
-  return dedupedItems;
 }

@@ -14,7 +14,7 @@ app.use(express.static(new URL('public', import.meta.url).pathname));
 
 app.post('/images', async(req, res) => {
   let options = req.body;
-  console.log(options)
+  console.log(options);
   // options = {};
   let images = await prisma.image.findMany(options);
 

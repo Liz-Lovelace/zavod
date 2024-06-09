@@ -1,7 +1,7 @@
 import sharp from 'sharp';
 import { sleep } from '../lib/utils.mjs';
 
-export default async function imageAnalysisWorker({ downloadURL, index, pureItemId }) {
+export default async function imageAnalysisWorker({ downloadURL }) {
   const imageBuffer = await fetch(downloadURL).then(res => res.arrayBuffer());
   console.log('analyzing image', downloadURL);
   return await analyzeImage(imageBuffer);
@@ -19,8 +19,8 @@ async function analyzeImage(buffer) {
   let edgePixelLumas = edgePixels.map(toLuma);
   let medianEdgeLuma = getMedianLuma(edgePixelLumas);
 
-  let [ boundImage, boundingBox ] = await getBoundImage(image, fullWidth, fullHeight)
-  let samplePixels = await toRGBarray(await resizeToTargetPixelCount(boundImage, 15000, boundingBox.boundWidth, boundingBox.boundHeight))
+  let [ boundImage, boundingBox ] = await getBoundImage(image, fullWidth, fullHeight);
+  let samplePixels = await toRGBarray(await resizeToTargetPixelCount(boundImage, 25000, boundingBox.boundWidth, boundingBox.boundHeight));
   // await drawBoundingBox(image, boundingBox);
 
   let uniqueAllColorsCount = getUniqueColorsCount(samplePixels);
@@ -51,11 +51,11 @@ async function analyzeImage(buffer) {
 
 async function resizeToTargetPixelCount(image, targetPixelCount, originalWidth, originalHeight) {
   let aspectRatio = originalHeight / originalWidth;
-  let scale = Math.sqrt(targetPixelCount / aspectRatio) / originalWidth
+  let scale = Math.sqrt(targetPixelCount / aspectRatio) / originalWidth;
   return sharp(await image.toBuffer()).resize({
     width: Math.round(originalWidth * scale),
     height: Math.round(originalHeight * scale),
-  })
+  });
 }
 
 function getUniqueColorsCount(RGBs) {
@@ -84,12 +84,12 @@ async function getSampleEdgePixels(buffer, width, height) {
 
 async function getBoundImage(fullImage, fullWidth, fullHeight) {
   let boundImage = sharp(await fullImage.toBuffer()).trim();
-  let buffer = await boundImage.toBuffer({resolveWithObject: true})
-  let { 
+  let buffer = await boundImage.toBuffer({ resolveWithObject: true });
+  let {
     trimOffsetLeft,
     trimOffsetTop,
     width: boundWidth,
-    height: boundHeight
+    height: boundHeight,
   } = buffer.info;
   return [ boundImage, {
     fullWidth,
@@ -100,7 +100,7 @@ async function getBoundImage(fullImage, fullWidth, fullHeight) {
     left: -trimOffsetLeft,
     right: boundWidth - trimOffsetLeft,
     bottom: boundHeight - trimOffsetTop,
-  } ]
+  } ];
 }
 
 async function getCompressedSize(image) {
@@ -147,7 +147,7 @@ function getAverageColor(RGBs, excludeRGB = null) {
 
   const sumRGB = filteredRGBs.reduce(
     (acc, [r, g, b]) => [acc[0] + r, acc[1] + g, acc[2] + b],
-    [0, 0, 0]
+    [0, 0, 0],
   );
   return sumRGB.map((sum) => Math.round(sum / filteredRGBs.length));
 }

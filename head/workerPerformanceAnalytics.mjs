@@ -1,8 +1,8 @@
-import moment from "moment";
+import moment from 'moment';
 
 export function composeAnalytics(points, remainingTasksCount) {
   if (!points || points.length == 0) {
-    return null
+    return null;
   }
   let servers = splitByServer(points);
   let serverPerformances = {};
@@ -12,13 +12,13 @@ export function composeAnalytics(points, remainingTasksCount) {
     serverPerformances[server] = {
       allTimeTasksPerHour,
       lastMinTasksPerHour,
-    }
+    };
     if (server == 'all') {
       let serverCount = Object.keys(servers).length - 1;
       serverPerformances['average'] = {
         allTimeTasksPerHour: allTimeTasksPerHour / serverCount,
         lastMinTasksPerHour: lastMinTasksPerHour / serverCount,
-      }
+      };
     }
   }
   return {
@@ -35,11 +35,11 @@ function pointsPerHour(points) {
   }
   let begin = points[0].timestamp;
   let end = points[points.length - 1].timestamp;
-  return points.length / (end - begin) * 3600
+  return points.length / (end - begin) * 3600;
 }
 
 function splitByServer(points) {
-  let ipTable = {all: []}
+  let ipTable = { all: [] };
 
   for (let point of points) {
     if (!ipTable[point.ip]) {
@@ -53,12 +53,13 @@ function splitByServer(points) {
 }
 
 function getLastMinute(points) {
-  let lastMinPoints = []
+  let lastMinPoints = [];
   let now = moment().unix();
-  for (let i = points.length-1; i >= 0; i--) {
+  for (let i = points.length - 1; i >= 0; i--) {
     if (now - points[i].timestamp <= 60) {
-      lastMinPoints.push(points[i])
-    } else {
+      lastMinPoints.push(points[i]);
+    }
+    else {
       break;
     }
   }

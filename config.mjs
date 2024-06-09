@@ -8,11 +8,11 @@ let config = {
 export default config;
 
 if (config.dumpDB) {
-  console.log(`dumpDB is turned on!`);
+  console.log('dumpDB is turned on!');
 }
 
-console.log(`mockCompute: ${config.mockCompute}`)
+console.log(`mockCompute: ${config.mockCompute}`);
 
 if (!config.mockCompute) {
-  console.log(`going to create ${config.serverCount} servers`)
+  console.log(`going to create ${config.serverCount} servers`);
 }

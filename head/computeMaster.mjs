@@ -19,38 +19,41 @@ npm run worker &>> /root/errors.txt`;
 
 export async function createServer() {
   if (config.mockCompute) {
-    console.log(chalk.yellow('mock created server'))
+    console.log(chalk.yellow('mock created server'));
     return;
   }
+
   await vultrAPI('PATCH', `startup-scripts/${startupScriptId}`, {
     name: 'startupScript',
     script: btoa(startupScriptBody),
   });
 
   let res = await vultrAPI('POST', 'instances', {
-    "region": "ams",
-    "plan": "vc2-1c-1gb",
-    "label": "zavodWorker",
-    "os_id": 2136,
-    "attach_vpc2": ["a479b2db-e82e-44b9-8b95-7a2600551860"],
-    "backups": "disabled",
-    "script_id": startupScriptId,
+    'region': 'ams',
+    'plan': 'vc2-1c-1gb',
+    'label': 'zavodWorker',
+    'os_id': 2136,
+    'attach_vpc2': ['a479b2db-e82e-44b9-8b95-7a2600551860'],
+    'backups': 'disabled',
+    'script_id': startupScriptId,
   });
 
-  console.log(chalk.green('Created new server'))
+  console.log(chalk.green('Created new server'));
 
   return res;
 }
 
-export async function shutdownCompute(){
+export async function shutdownCompute() {
   if (config.mockCompute) {
-    console.log(chalk.yellow('mock deleted servers'))
+    console.log(chalk.yellow('mock deleted servers'));
     return;
   }
-  let servers = await listServers()
-  console.log('Deleting', servers.length, 'servers...')
+
+  let servers = await listServers();
+
+  console.log('Deleting', servers.length, 'servers...');
   for (let server of servers) {
-    deleteServer(server.id)
+    deleteServer(server.id);
   }
 }
 
@@ -60,30 +63,30 @@ async function listServers() {
 
 async function deleteServer(id) {
   let res = await vultrAPI('DELETE', `instances/${id}`);
-  console.log(chalk.blue('Deleted server'))
+  console.log(chalk.blue('Deleted server'));
   return res;
 }
 
 export async function vultrAPI(method, endpoint, body) {
   const url = `https://api.vultr.com/v2/${endpoint}`;
 
-  const response = await fetch(url, {
+  const res = await fetch(url, {
     method,
     headers: {
-      "Authorization": `Bearer ${process.env.VULTR_API_KEY}`,
-      "Content-Type": "application/json"
+      'Authorization': `Bearer ${process.env.VULTR_API_KEY}`,
+      'Content-Type': 'application/json',
     },
-    body: JSON.stringify(body)
+    body: JSON.stringify(body),
   });
 
-  if (!response.ok) {
-    console.log(chalk.red(await response.text()))
-    throw new Error(`Vultr API request failed with status ${response.status}`);
+  if (!res.ok) {
+    console.log(chalk.red(await res.text()));
+    throw new Error(`Vultr API request failed with status ${res.status}`);
   }
 
-  if (response.status == 204) {
+  if (res.status == 204) {
     return '204 response';
   }
 
-  return await response.json();
+  return await res.json();
 }
