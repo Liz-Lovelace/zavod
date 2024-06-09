@@ -37,4 +37,4 @@ model Image {
   boundingBoxBottom     Int?
   boundingBoxLeft       Int?
   boundingBoxRight      Int?
-  productBgPixelShare   Flo
+}
