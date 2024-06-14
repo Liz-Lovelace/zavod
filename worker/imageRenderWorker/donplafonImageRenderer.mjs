@@ -1,59 +1,209 @@
 import sharp from 'sharp';
 import fs from 'fs/promises';
+import propPrecedenceByCategory from './propPrecedence.mjs';
+import config from '../../config.mjs';
+import { sleep } from '../../lib/utils.mjs';
+import { uploadBuffer } from '../../lib/storage.mjs';
+import dotenv from 'dotenv';
 
-let overlays = {};
+dotenv.config();
 
-let rawProperties = [JSON.parse('{"ID элемента":"66278","Наименование":"Бра Mantra Cuadrax 1113","Цена":"16886.00","Доступное количество":"6","Высота, мм":"150","Ширина, мм":"150","Длина, мм":"150","Вид ламп":"Светодиодная","Цоколь":"G9","Количество ламп":"2","Мощность лампы, W":"5","Общая мощность, W":"10","Напряжение":"220","Материал плафона/абажура":"Стекло","Цвет плафона/абажура":"Прозрачный","Материал арматуры":"Металл","Цвет арматуры":"Хром","Стиль":"Дизайнерский","Направление абажуров/плафонов":"Вверх","Место в интерьере":"В гостиную","Степень защиты (IP)":"20","Длина подвеса в мм":"1200","Коллекция":"Cuadrax Chrom Matte","Коробка вес кг":"1.67","Лампы в комплекте":"Да","Популярность":"999995393","Расположение":"На стену","Страна":"Испания","Форма плафона":"Квадратный","Штрих-код (служебное)":"8435153211133","Коробка вес гр":"1670","Коробка высота":"160","Коробка длина":"250","Коробка ширина":"100","Производитель":"Mantra","Гарантия":"60 месяцев","WB_BARCODE":"2150000112512","Идентификатор Озон":"23342589","Дата обновления фидом":"2024-06-05 18:21:06","Дата создания товара":"12.03.2016 01:20:06","МойСклад UUID":"4e4fa2d8-409a-11ea-0a80-05a70023ddd6","Кратность":"1","shopIds":[106397,106692,63614],"categoryStack":["Бра","Бра с 2 плафонами"]}')];
+let patchNameFromProp = {
+  'Лампы в комплекте': 'bulb-included',
+  'Для низких потолков': 'low-ceiling',
+  'Наличие выключателя': 'light-switch',
+  'Площадь освещения': 'illumination-area',
+  'Общая мощность, W': 'wattage',
+  'Расположение=На стену': 'wall-mount',
+  'Для натяжных потолков': 'stretchy-ceiling-mount',
+  'Диаметр врезного отверстия, мм': 'hole-diameter',
+  'Цоколь': 'bulb-size',
+  'Пульт ДУ': 'remote-control',
+  'Степень защиты (IP)': 'protection',
+  'Степень защиты': 'protection',
+  'Световой поток, лм': 'lumens',
+  // '???':"title",
+};
 
-main();
-async function main() {
-  const sourceImagePath = new URL('./testSource.jpg', import.meta.url);
-  const sourceImageBuffer = await fs.readFile(sourceImagePath);
-  console.time();
-  console.log(rawProperties[0]);
-  await renderImage({
+let otherAssets;
+let patches;
+
+await startup();
+
+export async function imageRenderWorker({ uploadFilename, downloadURL, averageEdgeColor, pureItem }) {
+  const sourceImageBuffer = await fetch(downloadURL).then(res => res.arrayBuffer());
+  // const sourceImageBuffer = await fs.readFile(new URL('./testSource.jpg', import.meta.url));
+
+  // todo: refactor
+  let category = pureItem.rawProperties.categoryStack[0];
+  let subcategory = pureItem.rawProperties.categoryStack[1];
+  let propPrecedence = propPrecedenceByCategory[subcategory] ||  propPrecedenceByCategory[category];
+  if (!propPrecedence) {
+    return {};
+  }
+
+  let props = pickProps(pureItem.rawProperties, propPrecedence);
+
+  let chosenPatches = patchesFromProps(props, patches);
+
+  let outputImageBuffer = await renderImage({
     sourceImageBuffer,
-    props: rawProperties[0],
-    backgroundColor: { r: 235, g: 235, b: 235 },
-    width: 1000,
-    height: 1000,
+    patches: chosenPatches,
+    backgroundColor: { r: averageEdgeColor[0], g: averageEdgeColor[1], b: averageEdgeColor[2] },
+    width: 1080,
+    height: 1080,
+    // todo: padding can be determined by bounding box
     padding: 100,
   });
-  console.timeEnd();
+
+  if (!config.debugImageRenderer) {
+    await uploadBuffer(process.env.S3_IMAGERENDER_BUCKET_NAME, uploadFilename, outputImageBuffer);
+  }
+  else {
+    await fs.writeFile(new URL('./testOutput.jpeg', import.meta.url).pathname, outputImageBuffer);
+  }
+
+  return {};
 }
 
-async function renderImage({ sourceImageBuffer, props, backgroundColor, padding, width: outWidth, height: outHeight }) {
-  const lumPath = new URL('./500LumTest.png', import.meta.url);
-  const framePath = new URL('./frame.png', import.meta.url);
-  const outputImagePath = new URL('./testOutput.jpeg', import.meta.url);
+async function startup() {
+  patches = await loadPatches();
+  otherAssets = {
+    frame: await fs.readFile(new URL('./frame.svg', import.meta.url)),
+  };
+}
 
-  // todo: this should be done once!!
-  const lumImg = await fs.readFile(lumPath);
-  let frameImg = await fs.readFile(framePath);
-  frameImg = await sharp(frameImg).resize(outHeight * 0.99, outHeight * 0.99).toBuffer();
+async function renderImage({ sourceImageBuffer, backgroundColor, padding, width: outWidth, height: outHeight, patches }) {
+  let frameImg = await sharp(otherAssets.frame).resize(outHeight, outHeight).toBuffer();
 
-  const resizedImage = await sharp(sourceImageBuffer)
+  patches = positionPatches(patches, outWidth, outHeight);
+
+  return await sharp(sourceImageBuffer)
     .resize({
       width: outWidth - padding * 2,
       height: outHeight - padding * 2,
       fit: sharp.fit.contain,
       background: backgroundColor,
-    });
-
-  const extendedImage = await resizedImage
+    })
     .extend({
       top: padding,
       bottom: padding,
       left: padding,
       right: padding,
       background: backgroundColor,
-    });
-
-  // Composite the overlay image onto the extended image
-  await extendedImage
-    .composite([{
-      input: frameImg,
-    }])
+    })
+    .composite([
+      { input: frameImg },
+      ...patches,
+    ])
     .jpeg()
-    .toFile(outputImagePath.pathname);
+    .toBuffer();
+}
+
+function positionPatches(patches, outWidth, outHeight) {
+  patches = patches
+    .slice(0, 4)
+    .sort((p1, p2) => p2.metadata.width - p1.metadata.width);
+
+  let offsets = {
+    tl: { h: 40, v: 120 },
+    bl: { h: 40, v: -200 },
+    br: { h: -40, v: -40 },
+  };
+
+  let positions = {
+    1: ['tl'],
+    2: ['bl', 'br'],
+    3: ['bl', 'br', 'br'],
+    4: ['tl', 'bl', 'br', 'br'],
+    5: ['tl', 'bl', 'br', 'bl', 'br'],
+    6: ['tl', 'bl', 'br', 'bl', 'br', 'br'],
+  }[patches.length];
+
+  let compositeConfigs = [];
+  for (let i = 0; i < patches.length; i++) {
+    let patch = patches[i];
+    let position = positions[i];
+
+    let left = offsets[position].h;
+    let top = offsets[position].v;
+
+    if (position[0] == 'b') {
+      top += outHeight - patch.metadata.height;
+      offsets[position].v -= patch.metadata.height;
+    }
+    else {
+      offsets[position].v += patch.metadata.height;
+    }
+
+    if (position[1] == 'r') {
+      left += outWidth - patch.metadata.width;
+    }
+
+    compositeConfigs.push({
+      input: patch.buffer,
+      left: left,
+      top: top,
+    });
+  }
+  return compositeConfigs;
+}
+
+function pickProps(props, propPrecedence) {
+  let pickedProps = [];
+  let pickedPropNames = new Set();
+
+  propPrecedence = propPrecedence.concat(Object.keys(props));
+
+  propPrecedence.forEach(propName => {
+    let isSet = Boolean(props[propName]);
+    let isRenderable = Object.keys(patchNameFromProp).includes(propName);
+    let isUnique = !pickedPropNames.has(propName);
+    if (isSet && isRenderable && isUnique) {
+      pickedProps.push([propName, props[propName]]);
+      pickedPropNames.add(propName);
+    }
+  });
+
+  return pickedProps;
+}
+
+function patchesFromProps(props, patches) {
+  let chosenPatches = [];
+  for (let [propKey, propValue] of props) {
+    if (propKey == 'Расположение') {
+      propKey += `=${propValue}`;
+    }
+    let patch = patches.find(p => p.name == patchNameFromProp[propKey]);
+    if (!patch) {
+      throw `Patch not found for prop ${propKey}`;
+    }
+    chosenPatches.push(patch);
+  }
+  return chosenPatches;
+}
+
+async function loadPatches() {
+  const patchesDir = new URL('./patches/', import.meta.url);
+  const patchFiles = await fs.readdir(patchesDir);
+
+  const patches = [];
+
+  for (const file of patchFiles) {
+    const patchBuffer = await fs.readFile(new URL(file, patchesDir));
+    let patchName = file.split('.')[0];
+    let sharpObj = sharp(patchBuffer);
+    let patch = {
+      sharp: sharpObj,
+      metadata: await sharpObj.metadata(),
+      buffer: await sharpObj.toBuffer(),
+      name: patchName,
+    };
+    patch.metadata.height -= 50;
+    patch.metadata.width -= 50;
+
+    patches.push(patch);
+  }
+
+  return patches;
 }

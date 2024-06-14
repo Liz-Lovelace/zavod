@@ -1,36 +1,54 @@
-import { getPureItems, getAllImageIds } from '../lib/database.mjs';
+import { getPureItems, getAllImageIds, getImages, unpackagePureItem } from '../lib/database.mjs';
 import chalk from 'chalk';
 import { shuffle } from '../lib/utils.mjs';
 import config from '../config.mjs';
-import { cachedImageFilenameFromRemoteURL, cachedImageURLfromRemoteURL, listObjects } from '../lib/storage.mjs';
+import { cachedImageFilenameFromRemoteURL, cachedImageURLfromRemoteURL, listObjects, renderedImageFilename } from '../lib/storage.mjs';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
 export async function composeTasks(client) {
-  let pureItemOptions = client ? { where: { client } } : {};
-  let pureItems = await getPureItems(pureItemOptions);
-  // let tasks = await downloadImageTasks(pureItems);
-  let tasks = await analyzeImageTasks(pureItems);
-  // let tasks = await renderImageTasks(pureItems);
+  // let pureItemsOptions = client ? { where: { client } } : {};
+  // let pureItems = await getPureItems(pureItemsOptions);
+  // let tasks = await downloadImageTasks(pureItemsOptions);
+  // let tasks = await analyzeImageTasks(pureItemsOptions);
+
+  let imagesOptions = client ? { where: { pureItem: { client: client } } } : {};
+  let images = await getImages({
+    ...imagesOptions,
+    include: { pureItem: true },
+  });
+  let tasks = await renderImageTasks(images);
+
   shuffle(tasks);
   return tasks;
 }
 
-async function renderImageTasks(pureItems) {
+async function renderImageTasks(images) {
   let tasks = [];
-  pureItems.forEach(({ remoteImages }) => {
-    remoteImages.forEach((url, index) => {
-      if (index != 0) {
-        return;
-      }
-      let extension = url.split('.').pop();
-      let cachedImageFilename = `${btoa(url)}.${extension}`;
+  // listObjects takes a while on high-latency internet, you can remove it for testing
+  let renderedImages = new Set(await listObjects(process.env.S3_IMAGERENDER_BUCKET_NAME));
+  images.forEach((image) => {
+    image.pureItem = unpackagePureItem(image.pureItem);
+    if (image.index != 0) {
+      return;
+    }
 
-      tasks.push({
-        task: 'renderImage',
-        taskData: { },
-      });
+    let downloadURL = cachedImageURLfromRemoteURL(image.url);
+    let uploadFilename = renderedImageFilename(image.pureItem.id, image.url);
+
+    if (renderedImages.has(uploadFilename)) {
+      console.log('skip');
+      return;
+    }
+
+    tasks.push({
+      task: 'renderImage',
+      taskData: {
+        ...image,
+        downloadURL,
+        uploadFilename,
+      },
     });
   });
   return tasks;
