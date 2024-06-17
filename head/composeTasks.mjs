@@ -38,7 +38,6 @@ async function renderImageTasks(images) {
     let uploadFilename = renderedImageFilename(image.pureItem.id, image.url);
 
     if (renderedImages.has(uploadFilename)) {
-      console.log('skip');
       return;
     }
 
