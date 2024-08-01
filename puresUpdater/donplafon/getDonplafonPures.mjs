@@ -41,7 +41,7 @@ export default async function* getPureItems() {
 async function getOfferIdToShops() {
   let offerIdToShops = {};
   for (let shopId of [106397, 106692, 35923, 63614]) {
-    let path = new URL(`file:./materials/shop-${shopId}.csv`, import.meta.url);
+    let path = new URL(`file:./materials/${shopId}.csv`, import.meta.url);
     let shopItems = await readCsv(path);
     for (let shopItem of shopItems) {
       shopItem.shopId = shopId;

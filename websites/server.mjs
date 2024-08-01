@@ -15,10 +15,10 @@ refreshRenderedImages();
 setInterval(refreshRenderedImages, 5 * 60 * 1000);
 
 async function refreshRenderedImages() {
-  console.log('refreshing rendered images...')
+  console.log('refreshing rendered images...');
   renderedImages = await listObjects(process.env.S3_IMAGERENDER_BUCKET_NAME);
   renderedImages = renderedImages.map(filename => renderedImageURLfromFilename(filename));
-  console.log(chalk.green('refreshed rendered images...'))
+  console.log(chalk.green('refreshed rendered images...'));
 }
 
 const prisma = new PrismaClient();
@@ -41,7 +41,7 @@ app.post('/rendered-images', async(req, res) => {
   let options = req.body;
   console.log(options);
   // options = {};
-  shuffle(renderedImages)
+  shuffle(renderedImages);
 
   res.json(renderedImages.slice(0, options.take));
 });

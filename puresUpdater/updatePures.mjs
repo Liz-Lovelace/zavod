@@ -14,10 +14,12 @@ let pureItemGetters = {
 await updateAllPures();
 async function updateAllPures() {
   if (config.dumpDB) {
+    console.log(chalk.red('dumping whole pureItems db...'));
     await dumpPureItems();
+    console.log(chalk.red('PureItem db dumped'));
   }
-  await updateClientPures('vamsvet');
-  await updateClientPures('meloman');
+  // await updateClientPures('vamsvet');
+  // await updateClientPures('meloman');
   await updateClientPures('donplafon');
 }
 

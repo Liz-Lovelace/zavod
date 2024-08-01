@@ -8,17 +8,19 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export async function composeTasks(client) {
-  // let pureItemsOptions = client ? { where: { client } } : {};
-  // let pureItems = await getPureItems(pureItemsOptions);
-  // let tasks = await downloadImageTasks(pureItemsOptions);
-  // let tasks = await analyzeImageTasks(pureItemsOptions);
+  let pureItemsOptions = client ? { where: { client } } : {};
+  let pureItems = await getPureItems(pureItemsOptions);
+  let tasks = await downloadImageTasks(pureItems);
+  // let tasks = await analyzeImageTasks(pureItems);
 
+  /*
   let imagesOptions = client ? { where: { pureItem: { client: client } } } : {};
   let images = await getImages({
     ...imagesOptions,
     include: { pureItem: true },
   });
   let tasks = await renderImageTasks(images);
+  */
 
   shuffle(tasks);
   return tasks;
