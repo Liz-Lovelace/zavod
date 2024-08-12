@@ -1,18 +1,37 @@
-import { getFullItems } from './database.mjs';
+import { getFullItems } from '../lib/database.mjs';
 import chalk from 'chalk';
+/*
+      medianEdgeBrightness: 88,
+      uniqueEdgeColorsCount: 210,
+      averageEdgeColor: "98|96|97",
+      uniqueAllColorsCount: 4526,
+      averageProductBrightness: 99.33333333333333,
+      averageProductColor: "102|99|97",
+      productBgPixelShare: 0,
+
+*/
 
 function analyzeImages(fullItems) {
   fullItems.forEach(item => {
     item.images.forEach(image => {
+      if (!image) {
+        console.log('undefined image?')
+        return;
+      }
+      if (image.index !== 0) {
+        return;
+      }
+      image.contrast = Math.abs(image.averageProductBrightness - image.medianEdgeBrightness)
       image.small = image.width < 500 && image.height < 500;
       image.instruction = image.uniqueAllColorsCount < 350;
-      image.dark = image.averageAllBrightness < 180;
-      image.blinding = image.averageAllBrightness > 240;
+      image.dark = image.medianEdgeBrightness <= 5 && image.contrast < 15;
+      image.blinding = image.medianEdgeBrightness > 127 && image.contrast < 10;
       image.good = ![image.small, image.instruction, image.dark, image.blinding].some(Boolean);
     });
   });
   return fullItems;
 }
+
 main();
 async function main() {
   let items = await getFullItems({ where: { client: 'donplafon' } });
@@ -30,7 +49,10 @@ async function main() {
   let blinding = 0;
   let good = 0;
   items.forEach(item => {
-    item.images.forEach(image => {
+    item.images.slice(0, 1).forEach(image => {
+      if (!image) {
+        return;
+      }
       total0++;
       if (image.error) {
         error++;
@@ -49,6 +71,7 @@ async function main() {
       total3++;
       if (image.dark || image.blinding) {
         if (image.dark) {
+          console.log(image.contrast, image.averageProductBrightness, image.url)
           dark++;
         }
         if (image.blinding) {

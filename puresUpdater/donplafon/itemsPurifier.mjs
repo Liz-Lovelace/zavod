@@ -9,6 +9,7 @@ export default function purifyItem(rawItem) {
     client,
     offerId,
     remoteImages: imageURLs,
+    applicableDesigns: rawItem.shopIds,
     rawProperties: {
       ...extractAllProperties(rawItem),
       categoryStack: [rawItem['Раздел 1'], rawItem['Раздел 2']],

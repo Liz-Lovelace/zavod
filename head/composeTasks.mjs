@@ -8,22 +8,28 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export async function composeTasks(client) {
+  /*
   let pureItemsOptions = client ? { where: { client } } : {};
   let pureItems = await getPureItems(pureItemsOptions);
+  */
   // let tasks = await downloadImageTasks(pureItems);
-  let tasks = await analyzeImageTasks(pureItems);
+  // let tasks = await analyzeImageTasks(pureItems);
 
-  /*
-  let imagesOptions = client ? { where: { pureItem: { client: client } } } : {};
+  let imagesOptions = client ? { where: { 
+    pureItem: { client: client },
+    index: 0,
+  } } : {};
+
   let images = await getImages({
     ...imagesOptions,
     include: { pureItem: true },
   });
+  images = images.filter(image => image.pureItem.applicableDesigns.includes('63614'))
+  images = images.filter(image => image.medianEdgeBrightness == 255)
   let tasks = await renderImageTasks(images);
-  */
 
   shuffle(tasks);
-  return tasks;
+  return tasks
 }
 
 async function renderImageTasks(images) {
@@ -32,9 +38,6 @@ async function renderImageTasks(images) {
   let renderedImages = new Set(await listObjects(process.env.S3_IMAGERENDER_BUCKET_NAME));
   images.forEach((image) => {
     image.pureItem = unpackagePureItem(image.pureItem);
-    if (image.index != 0) {
-      return;
-    }
 
     let downloadURL = cachedImageURLfromRemoteURL(image.url);
     let uploadFilename = renderedImageFilename(image.pureItem.id, image.url);

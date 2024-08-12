@@ -14,6 +14,7 @@ model PureItem {
   client        String
   offerId       String
   rawProperties String
+  applicableDesigns String
   createdAt     DateTime @default(now())
 
   @@index([client])

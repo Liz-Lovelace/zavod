@@ -3,7 +3,7 @@ let config = {
   serverCount: 10,
   mockCompute: true,
   dumpDB: false,
-  debugImageRenderer: false,
+  debugImageRenderer: true,
 };
 
 export default config;
