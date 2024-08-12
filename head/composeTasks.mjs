@@ -36,6 +36,7 @@ async function renderImageTasks(images) {
   let tasks = [];
   // listObjects takes a while on high-latency internet, you can remove it for testing
   let renderedImages = new Set(await listObjects(process.env.S3_IMAGERENDER_BUCKET_NAME));
+  console.log(renderedImages)
   images.forEach((image) => {
     image.pureItem = unpackagePureItem(image.pureItem);
 

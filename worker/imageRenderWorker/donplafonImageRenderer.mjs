@@ -15,8 +15,6 @@ let otherAssets;
 await startup();
 
 export async function imageRenderWorker({ uploadFilename, downloadURL, averageEdgeColor, pureItem, medianEdgeBrightness}) {
-  const sourceImageBuffer = await fetch(downloadURL).then(res => res.arrayBuffer());
-  // const sourceImageBuffer = await fs.readFile(new URL('./testSource.jpg', import.meta.url));
 
   let [category, subcategory] = pureItem.rawProperties.categoryStack;
   let propPrecedence = propPrecedenceFromCategory(subcategory, category)
@@ -41,6 +39,9 @@ export async function imageRenderWorker({ uploadFilename, downloadURL, averageEd
   let backgroundColor = (medianEdgeBrightness == 255 || medianEdgeBrightness == 0) ?
     { r: medianEdgeBrightness, g: medianEdgeBrightness, b: medianEdgeBrightness }
     : { r: averageEdgeColor[0], g: averageEdgeColor[1], b: averageEdgeColor[2] }
+
+  const sourceImageBuffer = await fetch(downloadURL).then(res => res.arrayBuffer());
+  // const sourceImageBuffer = await fs.readFile(new URL('./testSource.jpg', import.meta.url));
 
   let outputImageBuffer = await renderImage({
     sourceImageBuffer,
@@ -76,6 +77,8 @@ function pickProps(props, propPrecedence) {
     let isRenderable = Object.keys(patchNameFromProp).includes(propName);
 
     let otherSkip = propName == 'Наличие выключателя' && props[propName] == 'Нет'
+    let otherSkip2 = propName == 'Страна' && props[propName] == 'Китай'
+    if (propName)
 
     if (propName == 'Цоколь') {
       if (Object.keys(props).includes('Лампы в комплекте')) {
@@ -83,7 +86,7 @@ function pickProps(props, propPrecedence) {
       }
     } 
 
-    if (isSet && isRenderable && !otherSkip) {
+    if (isSet && isRenderable && !otherSkip && !otherSkip2) {
       pickedProps.push([propName, props[propName]]);
     }
   });
