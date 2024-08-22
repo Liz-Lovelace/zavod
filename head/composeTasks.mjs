@@ -2,19 +2,18 @@ import { getPureItems, getAllImageIds, getImages, unpackagePureItem } from '../l
 import chalk from 'chalk';
 import { shuffle } from '../lib/utils.mjs';
 import config from '../config.mjs';
-import { cachedImageFilenameFromRemoteURL, cachedImageURLfromRemoteURL, listObjects, renderedImageFilename } from '../lib/storage.mjs';
+import { cachedImageFilenameFromRemoteURL, cachedImageURLfromRemoteURL, listObjects, renderedImageFilename, renderedImageURLfromFilename } from '../lib/storage.mjs';
 import dotenv from 'dotenv';
 import fs from 'fs/promises';
 
 dotenv.config();
 
 export async function composeTasks(client) {
-  let pureItemsOptions = client ? { where: { client } } : {};
-  let pureItems = await getPureItems(pureItemsOptions);
+  // let pureItemsOptions = client ? { where: { client } } : {};
+  // let pureItems = await getPureItems(pureItemsOptions);
   // let tasks = await downloadImageTasks(pureItems);
-  let tasks = await analyzeImageTasks(pureItems);
+  // let tasks = await analyzeImageTasks(pureItems);
 
-  /*
   let imagesOptions = client ? { where: {
     pureItem: { client: client },
     index: 0,
@@ -24,10 +23,12 @@ export async function composeTasks(client) {
     ...imagesOptions,
     include: { pureItem: true },
   });
-  images = images.filter(image => image.pureItem.applicableDesigns.includes('63614'))
-  images = images.filter(image => image.medianEdgeBrightness == 255)
+  images.forEach(image => {
+    image.pureItem = unpackagePureItem(image.pureItem);
+  });
+  images = images.filter(image => image.pureItem.shops.some(({ shop }) => shop == '63614'));
+  images = images.filter(image => image.medianEdgeBrightness == 255);
   let tasks = await renderImageTasks(images);
-  */
 
   shuffle(tasks);
   return tasks;
@@ -40,10 +41,9 @@ async function renderImageTasks(images) {
   // temporary shitty thing
   await createClientJson(renderedImages);
   images.forEach((image) => {
-    image.pureItem = unpackagePureItem(image.pureItem);
-
     let downloadURL = cachedImageURLfromRemoteURL(image.url);
-    let uploadFilename = renderedImageFilename(image.pureItem.id, image.url);
+    let ozonId = image.pureItem.shops.find(({ shop }) => shop == '63614').ozonId;
+    let uploadFilename = renderedImageFilename('63614', image.pureItem.offerId, ozonId, image.url);
 
     if (renderedImages.has(uploadFilename)) {
       return;
@@ -64,13 +64,19 @@ async function renderImageTasks(images) {
 async function createClientJson(images) {
   let json = [];
   images.forEach(img => {
-    let parts = img.split('-0000-');
-    let id = parts[0].slice(10);
-    let originalURL = atob(parts[1].split('.')[0]);
-    let seoURL = `https://rendered-images.ams1.vultrobjects.com/${img.replaceAll(' ', '%20')}`;
-    json.push({ id, originalURL, seoURL });
+    let parts = img.split('-');
+    let shop = parts[0];
+    let offerId = parts[1];
+    let ozonId = parts[2].split('.')[0];
+    let seoURL = renderedImageURLfromFilename(img);
+    json.push({
+      'ID элемента': offerId,
+      'Ozon Product ID': ozonId,
+      shopId: shop,
+      seoURL,
+    });
   });
-  console.log(json.length);
+  console.log('items in json:', json.length);
 
   await fs.writeFile('./SEOimages.json', JSON.stringify(json));
 }
