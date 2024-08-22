@@ -16,7 +16,8 @@ node --version &>> /root/errors.txt
 wget --header="Authorization:${process.env.WORKER_SECRET}" ${process.env.HEAD_IP}:${process.env.HEAD_PORT}/workerStuff.zip &>> /root/errors.txt
 unzip workerStuff.zip &>> /root/errors.txt
 apt install /worker/imageRenderWorker/fonts-montserrat.deb &>> /root/errors.txt
-while true do
+while true
+do
   npm run worker &>> /root/errors.txt
 done`;
 
