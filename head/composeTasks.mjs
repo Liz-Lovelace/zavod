@@ -4,18 +4,18 @@ import { shuffle } from '../lib/utils.mjs';
 import config from '../config.mjs';
 import { cachedImageFilenameFromRemoteURL, cachedImageURLfromRemoteURL, listObjects, renderedImageFilename } from '../lib/storage.mjs';
 import dotenv from 'dotenv';
+import fs from 'fs/promises';
 
 dotenv.config();
 
 export async function composeTasks(client) {
-  /*
   let pureItemsOptions = client ? { where: { client } } : {};
   let pureItems = await getPureItems(pureItemsOptions);
-  */
-  // let tasks = await downloadImageTasks(pureItems);
+  let tasks = await downloadImageTasks(pureItems);
   // let tasks = await analyzeImageTasks(pureItems);
 
-  let imagesOptions = client ? { where: { 
+  /*
+  let imagesOptions = client ? { where: {
     pureItem: { client: client },
     index: 0,
   } } : {};
@@ -27,16 +27,18 @@ export async function composeTasks(client) {
   images = images.filter(image => image.pureItem.applicableDesigns.includes('63614'))
   images = images.filter(image => image.medianEdgeBrightness == 255)
   let tasks = await renderImageTasks(images);
+  */
 
   shuffle(tasks);
-  return tasks
+  return tasks;
 }
 
 async function renderImageTasks(images) {
   let tasks = [];
   // listObjects takes a while on high-latency internet, you can remove it for testing
   let renderedImages = new Set(await listObjects(process.env.S3_IMAGERENDER_BUCKET_NAME));
-  console.log(renderedImages)
+  // temporary shitty thing
+  await createClientJson(renderedImages);
   images.forEach((image) => {
     image.pureItem = unpackagePureItem(image.pureItem);
 
@@ -57,6 +59,20 @@ async function renderImageTasks(images) {
     });
   });
   return tasks;
+}
+
+async function createClientJson(images) {
+  let json = [];
+  images.forEach(img => {
+    let parts = img.split('-0000-');
+    let id = parts[0].slice(10);
+    let originalURL = atob(parts[1].split('.')[0]);
+    let seoURL = `https://rendered-images.ams1.vultrobjects.com/${img.replaceAll(' ', '%20')}`;
+    json.push({ id, originalURL, seoURL });
+  });
+  console.log(json.length);
+
+  await fs.writeFile('./SEOimages.json', JSON.stringify(json));
 }
 
 

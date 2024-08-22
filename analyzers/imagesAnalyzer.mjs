@@ -15,13 +15,13 @@ function analyzeImages(fullItems) {
   fullItems.forEach(item => {
     item.images.forEach(image => {
       if (!image) {
-        console.log('undefined image?')
+        console.log('undefined image?');
         return;
       }
       if (image.index !== 0) {
         return;
       }
-      image.contrast = Math.abs(image.averageProductBrightness - image.medianEdgeBrightness)
+      image.contrast = Math.abs(image.averageProductBrightness - image.medianEdgeBrightness);
       image.small = image.width < 500 && image.height < 500;
       image.instruction = image.uniqueAllColorsCount < 350;
       image.dark = image.medianEdgeBrightness <= 5 && image.contrast < 15;
@@ -71,7 +71,7 @@ async function main() {
       total3++;
       if (image.dark || image.blinding) {
         if (image.dark) {
-          console.log(image.contrast, image.averageProductBrightness, image.url)
+          console.log(image.contrast, image.averageProductBrightness, image.url);
           dark++;
         }
         if (image.blinding) {

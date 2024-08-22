@@ -15,7 +15,9 @@ hash -r &>> /root/errors.txt
 node --version &>> /root/errors.txt
 wget --header="Authorization:${process.env.WORKER_SECRET}" ${process.env.HEAD_IP}:${process.env.HEAD_PORT}/workerStuff.zip &>> /root/errors.txt
 unzip workerStuff.zip &>> /root/errors.txt
-npm run worker &>> /root/errors.txt`;
+while true do
+  npm run worker &>> /root/errors.txt
+done`;
 
 export async function createServer() {
   if (config.mockCompute) {

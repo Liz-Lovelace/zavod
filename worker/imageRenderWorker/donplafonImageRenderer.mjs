@@ -14,14 +14,14 @@ let otherAssets;
 
 await startup();
 
-export async function imageRenderWorker({ uploadFilename, downloadURL, averageEdgeColor, pureItem, medianEdgeBrightness}) {
+export async function imageRenderWorker({ uploadFilename, downloadURL, averageEdgeColor, pureItem, medianEdgeBrightness }) {
 
   let [category, subcategory] = pureItem.rawProperties.categoryStack;
-  let propPrecedence = propPrecedenceFromCategory(subcategory, category)
+  let propPrecedence = propPrecedenceFromCategory(subcategory, category);
   let categoryNamePatch = {
     patch: await getPatch('category', [prettifyCategoryTitle(subcategory)]),
     name: 'category',
-  }
+  };
 
   let props = pickProps(pureItem.rawProperties, propPrecedence);
   // props = [['Цоколь', 'GX53includesbulbs'], ['Цоколь', 'GX53']]
@@ -38,7 +38,7 @@ export async function imageRenderWorker({ uploadFilename, downloadURL, averageEd
 
   let backgroundColor = (medianEdgeBrightness == 255 || medianEdgeBrightness == 0) ?
     { r: medianEdgeBrightness, g: medianEdgeBrightness, b: medianEdgeBrightness }
-    : { r: averageEdgeColor[0], g: averageEdgeColor[1], b: averageEdgeColor[2] }
+    : { r: averageEdgeColor[0], g: averageEdgeColor[1], b: averageEdgeColor[2] };
 
   const sourceImageBuffer = await fetch(downloadURL).then(res => res.arrayBuffer());
   // const sourceImageBuffer = await fs.readFile(new URL('./testSource.jpg', import.meta.url));
@@ -56,7 +56,8 @@ export async function imageRenderWorker({ uploadFilename, downloadURL, averageEd
 
   if (!config.debugImageRenderer) {
     await uploadBuffer(process.env.S3_IMAGERENDER_BUCKET_NAME, uploadFilename, outputImageBuffer);
-  } else {
+  }
+  else {
     await fs.writeFile(new URL('./testOutput.jpeg', import.meta.url).pathname, outputImageBuffer);
   }
 
@@ -76,15 +77,15 @@ function pickProps(props, propPrecedence) {
     let isSet = Boolean(props[propName]);
     let isRenderable = Object.keys(patchNameFromProp).includes(propName);
 
-    let otherSkip = propName == 'Наличие выключателя' && props[propName] == 'Нет'
-    let otherSkip2 = propName == 'Страна' && props[propName] == 'Китай'
-    if (propName)
-
-    if (propName == 'Цоколь') {
-      if (Object.keys(props).includes('Лампы в комплекте')) {
-        props[propName] += 'includesbulbs'
+    let otherSkip = propName == 'Наличие выключателя' && props[propName] == 'Нет';
+    let otherSkip2 = propName == 'Страна' && props[propName] == 'Китай';
+    if (propName) {
+      if (propName == 'Цоколь') {
+        if (Object.keys(props).includes('Лампы в комплекте')) {
+          props[propName] += 'includesbulbs';
+        }
       }
-    } 
+    }
 
     if (isSet && isRenderable && !otherSkip && !otherSkip2) {
       pickedProps.push([propName, props[propName]]);
@@ -114,7 +115,7 @@ async function renderImage({ sourceImageBuffer, backgroundColor, padding, width:
       background: backgroundColor,
     })
     .composite([
-      { input: frameImg, blend: 'multiply'},
+      { input: frameImg, blend: 'multiply' },
       ...patches,
     ])
     .jpeg()
@@ -126,7 +127,7 @@ async function positionPatches(freePatches, topLeftPatch, outWidth, outHeight) {
     .slice(0, 3)
     .sort((p1, p2) => p2.patch.metadata.width - p1.patch.metadata.width);
 
-  let patches = [topLeftPatch].concat(freePatches)
+  let patches = [topLeftPatch].concat(freePatches);
 
   let offsets = {
     tl: { h: 40, v: 60 },
@@ -173,13 +174,13 @@ async function positionPatches(freePatches, topLeftPatch, outWidth, outHeight) {
         })).toBuffer(),
         left: position[1] == 'l' ? 0 : left - plaquePadding,
         top: top - plaquePadding / 2,
-      })
+      });
     }
 
 
     compositeConfigs.push({
       input: patch.buffer,
-      left, 
+      left,
       top,
     });
   }

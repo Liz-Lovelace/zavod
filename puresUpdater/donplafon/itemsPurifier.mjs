@@ -1,15 +1,14 @@
 export default function purifyItem(rawItem) {
   const client = 'donplafon';
-  let offerId = rawItem.offerId;
 
   let imageURLs = getImages(rawItem);
 
   let pureItem = {
-    id: `${client}-${offerId}`,
+    id: `${client}-${rawItem.id}`,
     client,
-    offerId,
+    offerId: rawItem.id,
     remoteImages: imageURLs,
-    applicableDesigns: rawItem.shopIds,
+    shops: rawItem.shops,
     rawProperties: {
       ...extractAllProperties(rawItem),
       categoryStack: [rawItem['Раздел 1'], rawItem['Раздел 2']],
@@ -20,7 +19,7 @@ export default function purifyItem(rawItem) {
 }
 
 function extractAllProperties(rawItem) {
-  let badProperties = new Set(['Основное фото', 'Дополнительные фото', 'Раздел 1', 'Раздел 2', 'Артикул', 'offerId']);
+  let badProperties = new Set(['Основное фото', 'Дополнительные фото', 'Раздел 1', 'Раздел 2', 'Артикул', 'ID элемента', 'Идентификатор Озон', 'id', 'shops']);
 
   let properties = {};
   for (let [key, value] of Object.entries(rawItem)) {

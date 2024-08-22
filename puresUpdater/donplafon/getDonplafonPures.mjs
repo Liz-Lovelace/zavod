@@ -1,7 +1,8 @@
 import { parse } from 'csv-parse/sync';
-import { download } from '../../lib/utils.mjs';
+import { download, sleep } from '../../lib/utils.mjs';
 import FS from 'fs';
 import purifyItem from './itemsPurifier.mjs';
+import { getIdFromOzonIdLookup } from './ozonIdLookups.mjs';
 
 const fs = {
   ...FS.promises,
@@ -15,49 +16,64 @@ export default async function* getPureItems() {
     await download('https://prod-feed.donplafon.ru/catalog_export/csv/production/all.csv', feedPath);
   }
 
-  let offerIdToShops = await getOfferIdToShops();
+  console.log('reading props csv');
+  let propsFromId = await csvToIdDict(feedPath, 'ID элемента');
+  console.log('composing ozon id lookups');
+  let idFromOzonId = await getIdFromOzonIdLookup(propsFromId);
+  console.log('matching up items with shop ids');
+  let shopItems = await getShopItems(idFromOzonId);
 
-  let propsLookup = await csvToIdDict(feedPath, 'Артикул');
-  console.log(Object.keys(propsLookup).length, 'donplafon items total, but we\'ll only be looking at the ones in shops');
+  for (let { id, shops } of shopItems) {
+    let props = propsFromId[id];
 
-  let mergedItems = {};
-  for (let offerId of Object.keys(offerIdToShops)) {
-    let propItem = propsLookup[offerId];
-
-    if (mergedItems[offerId] || !propItem) {
+    if (!props) {
+      console.log('props not found for id', id);
       continue;
     }
 
     let pureItem = purifyItem({
-      ...propItem,
-      offerId,
-      shopIds: offerIdToShops[offerId],
+      ...props,
+      id,
+      shops,
     });
 
     yield pureItem;
   }
 }
 
-async function getOfferIdToShops() {
-  let offerIdToShops = {};
-  for (let shopId of [106397, 106692, 35923, 63614]) {
-    let path = new URL(`file:./materials/${shopId}.csv`, import.meta.url);
+async function getShopItems(idFromOzonId) {
+  let shopItemFromId = {};
+  for (let shop of [106397, 106692, 35923, 63614]) {
+    let path = new URL(`file:./materials/${shop}.csv`, import.meta.url);
     let shopItems = await readCsv(path);
     for (let shopItem of shopItems) {
-      shopItem.shopId = shopId;
-      let offerId = shopItem['﻿"Артикул"'].slice(1);
-      offerIdToShops[offerId] = (offerIdToShops[offerId] || []).concat(shopId);
+      let ozonId = shopItem['Ozon Product ID'];
+      let shopInfo = {
+        shop,
+        ozonId,
+      };
+      let id = idFromOzonId[shop][ozonId];
+      if (!id) {
+        continue;
+      }
+      if (!shopItemFromId[id]) {
+        shopItemFromId[id] = [];
+      }
+      shopItemFromId[id].push(shopInfo);
     }
   }
-  return offerIdToShops;
+
+  let shopItems = Object.entries(shopItemFromId).map(([id, shops]) => ({ id, shops }));
+
+  return shopItems;
 }
 
 async function csvToIdDict(csvPath, idKey) {
   const items = await readCsv(csvPath);
   let dict = {};
   for (let item of items) {
-    let offerId = item[idKey];
-    dict[offerId] = item;
+    let ozonId = item[idKey];
+    dict[ozonId] = item;
   }
   return dict;
 }
