@@ -16,10 +16,8 @@ setInterval(refreshRenderedImages, 5 * 60 * 1000);
 
 async function refreshRenderedImages() {
   console.log('refreshing rendered images...');
-  renderedImages = await listObjects(process.env.S3_IMAGERENDER_BUCKET_NAME);
-  if (renderedImages) {
-    renderedImages = renderedImages.map(filename => renderedImageURLfromFilename(filename));
-  }
+  renderedImages = Array.from(await listObjects(process.env.S3_IMAGERENDER_BUCKET_NAME));
+  renderedImages = renderedImages.map(filename => renderedImageURLfromFilename(filename));
   console.log(chalk.green('refreshed rendered images...'));
 }
 
