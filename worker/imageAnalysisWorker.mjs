@@ -25,7 +25,6 @@ async function analyzeImage(buffer) {
 
   let uniqueAllColorsCount = getUniqueColorsCount(samplePixels);
   let averageProductRGB = getAverageColor(samplePixels, averageEdgeRGB);
-  console.log(averageProductRGB);
   let averageProductLuma = toLuma(averageProductRGB);
 
   let productBgPixelCount = countRGBs(samplePixels, [medianEdgeLuma, medianEdgeLuma,  medianEdgeLuma]);
