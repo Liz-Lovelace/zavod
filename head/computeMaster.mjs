@@ -9,13 +9,13 @@ let startupScriptId = '43f155bd-1e24-4171-90e6-0e72f134dc08';
 let startupScriptBody = `#!/bin/bash
 touch /root/abc
 apt install htop npm screen neovim -y &>> /root/errors.txt
-apt install /worker/imageRenderWorker/fonts-montserrat.deb &>> /root/errors.txt
 npm install -g yarn n &>> /root/errors.txt
 n latest &>> /root/errors.txt
 hash -r &>> /root/errors.txt
 node --version &>> /root/errors.txt
 wget --header="Authorization:${process.env.WORKER_SECRET}" ${process.env.HEAD_IP}:${process.env.HEAD_PORT}/workerStuff.zip &>> /root/errors.txt
 unzip workerStuff.zip &>> /root/errors.txt
+apt install /worker/imageRenderWorker/fonts-montserrat.deb &>> /root/errors.txt
 while true do
   npm run worker &>> /root/errors.txt
 done`;
