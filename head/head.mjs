@@ -61,7 +61,6 @@ app.get('/task', authenticateWorker, async(req, res) => {
 app.post('/task', authenticateWorker, async(req, res) => {
   const result = req.body;
   console.log(chalk.green('Received result'));
-  console.log(result);
 
   if (!saverLookup[result.task]) {
     return res.json({ message: 'thanks' });

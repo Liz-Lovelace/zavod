@@ -26,7 +26,6 @@ export async function composeTasks(client) {
   images.forEach(image => {
     image.pureItem = unpackagePureItem(image.pureItem);
   });
-  images = images.filter(image => image.pureItem.shops.some(({ shop }) => shop == '63614'));
   images = images.filter(image => image.medianEdgeBrightness == 255);
   let tasks = await renderImageTasks(images);
 
@@ -35,27 +34,48 @@ export async function composeTasks(client) {
 }
 
 async function renderImageTasks(images) {
+  // images = images.filter(image => image.pureItem.shops.some(({ shop }) => shop == '63614'));
   let tasks = [];
   // listObjects takes a while on high-latency internet, you can remove it for testing
-  let renderedImages = new Set(await listObjects(process.env.S3_IMAGERENDER_BUCKET_NAME));
+  // let renderedImages = new Set(await listObjects(process.env.S3_IMAGERENDER_BUCKET_NAME));
   // temporary shitty thing
-  await createClientJson(renderedImages);
+  // await createClientJson(renderedImages);
   images.forEach((image) => {
     let downloadURL = cachedImageURLfromRemoteURL(image.url);
-    let ozonId = image.pureItem.shops.find(({ shop }) => shop == '63614').ozonId;
-    let uploadFilename = renderedImageFilename('63614', image.pureItem.offerId, ozonId, image.url);
+    image.pureItem.shops.forEach(({ shop, ozonId }) => {
+      let shopName = {
+        '106397': 'homedecor',
+        '106692': 'roomdecor',
+        '63614':  'lampochki',
+        '35923':  'donplafon',
+      }[shop];
 
-    if (renderedImages.has(uploadFilename)) {
-      return;
-    }
+      if (shopName == 'lampochki') {
+        return;
+      }
+      // if (shopName == 'roomdecor') return
 
-    tasks.push({
-      task: 'renderImage',
-      taskData: {
-        ...image,
-        downloadURL,
-        uploadFilename,
-      },
+      if (!['roomdecor', 'lampochki'].includes(shopName)) {
+        return;
+      }
+
+      let uploadFilename = renderedImageFilename(shop, image.pureItem.offerId, ozonId, image.url);
+
+      /*
+      if (renderedImages.has(uploadFilename)) {
+        return;
+      }
+      */
+
+      tasks.push({
+        task: 'renderImage',
+        taskData: {
+          ...image,
+          downloadURL,
+          uploadFilename,
+          shop: shopName,
+        },
+      });
     });
   });
   return tasks;

@@ -5,8 +5,7 @@ import config from '../../config.mjs';
 import { sleep } from '../../lib/utils.mjs';
 import { uploadBuffer } from '../../lib/storage.mjs';
 import dotenv from 'dotenv';
-import { patchNameFromProp, patchesFromProps, getPatch } from './donplafonPatches.mjs';
-import { getPlaque } from './patchPlaque.mjs';
+import { patchNameFromProp, patchFromProp, getPatch } from './donplafonPatches.mjs';
 
 dotenv.config();
 
@@ -14,16 +13,17 @@ let otherAssets;
 
 await startup();
 
-export async function imageRenderWorker({ uploadFilename, downloadURL, averageEdgeColor, pureItem, medianEdgeBrightness }) {
-
+export async function imageRenderWorker({ shop, uploadFilename, downloadURL, averageEdgeColor, pureItem, medianEdgeBrightness }) {
   let [category, subcategory] = pureItem.rawProperties.categoryStack;
   let propPrecedence = propPrecedenceFromCategory(subcategory, category);
-  let categoryNamePatch = {
-    patch: await getPatch('category', [prettifyCategoryTitle(subcategory)]),
-    name: 'category',
-  };
+  let categoryNamePatch = await patchFromProp({
+    propName:'category',
+    propValue: prettifyCategoryTitle(subcategory),
+    position: 'tl',
+    shop,
+  });
 
-  let props = pickProps(pureItem.rawProperties, propPrecedence);
+  let props = pickProps(pureItem.rawProperties, propPrecedence).slice(0, 3);
   // props = [['Цоколь', 'GX53includesbulbs'], ['Цоколь', 'GX53']]
   // props = [['Количество ламп', '1'], ['Количество ламп', '12'],]
   // props = [['Световой поток, лм', '300'], ['Цоколь', 'GX53includesbulbs'],['Степень защиты (IP)', 'IP32']]
@@ -32,9 +32,26 @@ export async function imageRenderWorker({ uploadFilename, downloadURL, averageEd
   // props = [['Страна', 'Италия']]
   // props = [['Цвет свечения', 'Холодный белый']]
   // props = [['Площадь освещения', '24'], ['Площадь освещения', '240'], ['Площадь освещения', '2']]
-  // Нейтральный белый, Теплый белый, От теплого до холодного, От теплого до нейтрального, Холодный белый, RGB, От нейтрального до холодного
+  let chosenPatches = [];
+  for (let prop of props) {
+    chosenPatches.push(await patchFromProp({
+      ...prop,
+      position: 'tl',
+      shop,
+    }));
+  }
 
-  let chosenPatches = await patchesFromProps(props);
+  chosenPatches = positionPatches(chosenPatches);
+
+  for (let i = 0; i < chosenPatches.length; i++) {
+    chosenPatches[i] = await patchFromProp({
+      ...chosenPatches[i].prop,
+      position: chosenPatches[i].position,
+      shop,
+    });
+  }
+
+  chosenPatches = [categoryNamePatch].concat(chosenPatches);
 
   let backgroundColor = (medianEdgeBrightness == 255 || medianEdgeBrightness == 0) ?
     { r: medianEdgeBrightness, g: medianEdgeBrightness, b: medianEdgeBrightness }
@@ -46,12 +63,12 @@ export async function imageRenderWorker({ uploadFilename, downloadURL, averageEd
   let outputImageBuffer = await renderImage({
     sourceImageBuffer,
     patches: chosenPatches,
-    topLeftPatch: categoryNamePatch,
     backgroundColor,
     width: 1080,
     height: 1080,
     // todo: padding can be determined by bounding box
-    padding: 100,
+    padding: shop == 'lampochki' ? 100 : 150,
+    shop,
   });
 
   if (!config.debugImageRenderer) {
@@ -66,7 +83,8 @@ export async function imageRenderWorker({ uploadFilename, downloadURL, averageEd
 
 async function startup() {
   otherAssets = {
-    frame: await fs.readFile(new URL('./overlay.png', import.meta.url)),
+    lampochkiOverlay: await fs.readFile(new URL('./lampochki-overlay.png', import.meta.url)),
+    roomdecorOverlay: await fs.readFile(new URL('./roomdecor-overlay.svg', import.meta.url)),
   };
 }
 
@@ -88,17 +106,24 @@ function pickProps(props, propPrecedence) {
     }
 
     if (isSet && isRenderable && !otherSkip && !otherSkip2) {
-      pickedProps.push([propName, props[propName]]);
+      pickedProps.push({
+        propName,
+        propValue: props[propName],
+      });
     }
   });
 
   return pickedProps;
 }
 
-async function renderImage({ sourceImageBuffer, backgroundColor, padding, width: outWidth, height: outHeight, patches, topLeftPatch }) {
-  let frameImg = await sharp(otherAssets.frame).resize(outHeight, outHeight).toBuffer();
+async function renderImage({ sourceImageBuffer, backgroundColor, padding, width: outWidth, height: outHeight, patches, shop }) {
+  let overlay = {
+    'lampochki': otherAssets.lampochkiOverlay,
+    'roomdecor': otherAssets.roomdecorOverlay,
+  }[shop];
+  let overlayImg = await sharp(overlay).resize(outHeight, outHeight).toBuffer();
 
-  patches = await positionPatches(patches, topLeftPatch, outWidth, outHeight);
+  patches = await calculatePatchCoordinates(patches, outWidth, outHeight, shop);
 
   return await sharp(sourceImageBuffer)
     .resize({
@@ -115,68 +140,50 @@ async function renderImage({ sourceImageBuffer, backgroundColor, padding, width:
       background: backgroundColor,
     })
     .composite([
-      { input: frameImg, blend: 'multiply' },
+      { input: overlayImg, blend: 'multiply' },
       ...patches,
     ])
     .jpeg()
     .toBuffer();
 }
 
-async function positionPatches(freePatches, topLeftPatch, outWidth, outHeight) {
-  freePatches = freePatches
-    .slice(0, 3)
-    .sort((p1, p2) => p2.patch.metadata.width - p1.patch.metadata.width);
+function positionPatches(patches) {
+  patches.sort((p1, p2) => p2.patch.metadata.width - p1.patch.metadata.width);
+  let positions = ['bl', 'tr', 'br'];
+  patches.forEach((patch, i) => {
+    patch.position = positions[i];
+  });
+  return patches;
+}
 
-  let patches = [topLeftPatch].concat(freePatches);
-
+async function calculatePatchCoordinates(patches, outWidth, outHeight, shop) {
   let offsets = {
-    tl: { h: 40, v: 60 },
-    tr: { h: -40, v: 220 },
-    bl: { h: 40, v: -200 },
-    br: { h: -40, v: -40 },
+    tl: { h: 0, v: 60 },
+    tr: { h: 0, v: 220 },
+    bl: { h: 0, v: -200 },
+    br: { h: 0, v: -40 },
   };
 
-  let positions = {
-    2: ['tl'],
-    2: ['tl', 'bl'],
-    3: ['tl', 'bl', 'tr'],
-    4: ['tl', 'bl', 'tr', 'br'],
-  }[patches.length];
+  if (shop == 'roomdecor') {
+    offsets.tl.v = 10;
+  }
 
   let compositeConfigs = [];
   for (let i = 0; i < patches.length; i++) {
     let patch = patches[i].patch;
     let patchName = patches[i].name;
-    let position = positions[i];
+    let position = patches[i].position;
 
     let left = offsets[position].h;
     let top = offsets[position].v;
 
     if (position[0] == 'b') {
       top += outHeight - patch.metadata.height;
-      offsets[position].v -= patch.metadata.height;
-    }
-    else {
-      offsets[position].v += patch.metadata.height;
     }
 
     if (position[1] == 'r') {
       left += outWidth - patch.metadata.width;
     }
-
-    if (!['lumens', 'protection'].includes(patchName)) {
-      let plaquePadding = 60;
-      compositeConfigs.push({
-        input: await (await getPlaque({
-          width: patch.metadata.width + plaquePadding * 2,
-          height: patch.metadata.height + plaquePadding,
-          flip: position[1] == 'r',
-        })).toBuffer(),
-        left: position[1] == 'l' ? 0 : left - plaquePadding,
-        top: top - plaquePadding / 2,
-      });
-    }
-
 
     compositeConfigs.push({
       input: patch.buffer,
