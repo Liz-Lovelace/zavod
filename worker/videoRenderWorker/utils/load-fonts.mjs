@@ -1,6 +1,7 @@
 import { continueRender, delayRender, staticFile } from 'remotion';
  
 const waitForFont = delayRender();
+
 const fonts = [
   new FontFace(
     'Euclid Triangle',

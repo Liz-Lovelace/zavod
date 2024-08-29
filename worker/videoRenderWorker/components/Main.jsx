@@ -6,16 +6,14 @@ import zoomFade from '../transitions/zoomFade.jsx';
 import { springTiming, linearTiming } from '@remotion/transitions';
 import { PlafonImage } from './PlafonImage';
 import { FlavorText } from './FlavorText';
-import { EndingCard } from './EndingCard';
 import { Title } from './Title';
 import { Debug } from './Debug';
 
 export function Main({ version, images, itemInfo, flavorTexts, title }) {
   const { durationInFrames } = useVideoConfig();
   const transitionDuration = 20;
-  const finalLogoDuration = 40;
   const totalImages = images.length;
-  const imageDuration = (durationInFrames - finalLogoDuration) / totalImages;
+  const imageDuration = durationInFrames / totalImages;
 
   return (
     <>
@@ -36,13 +34,9 @@ export function Main({ version, images, itemInfo, flavorTexts, title }) {
             />
           </>
         ))}
-
-        <TransitionSeries.Sequence durationInFrames={finalLogoDuration}>
-          <EndingCard />
-        </TransitionSeries.Sequence>
       </TransitionSeries>
 
-      <Debug version={version} itemInfo={itemInfo} text={''}/>
     </>
   );
 }
+// <Debug version={version} itemInfo={itemInfo} text={''}/> 

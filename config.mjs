@@ -1,9 +1,9 @@
 let config = {
-  version: '0.2',
   serverCount: 10,
   mockCompute: true,
   dumpDB: false,
   debugImageRenderer: true,
+  debugVideoRenderer: false,
 };
 
 export default config;
@@ -20,4 +20,8 @@ if (!config.mockCompute) {
 
 if (config.debugImageRenderer) {
   console.log('Rendering image to file');
+}
+
+if (config.debugVideoRenderer) {
+  console.log('Rendering video to file');
 }

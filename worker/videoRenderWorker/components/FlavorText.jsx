@@ -18,7 +18,7 @@ export function FlavorText({ text, index }) {
 const plafonInfoStyle = {
   backgroundColor: '#0009',
   color: 'white',
-  fontSize: '80px',
+  fontSize: '60px',
   padding: '0.1em 0.6em',
   position: 'absolute',
   textAlign: 'left',

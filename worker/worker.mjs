@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import imageAnalysisWorker from './imageAnalysisWorker.mjs';
 import imageDownloadWorker from './imageDownloadWorker.mjs';
 import { imageRenderWorker } from './imageRenderWorker/donplafonImageRenderer.mjs';
+import { videoRenderWorker } from './videoRenderWorker/donplafonVideoRenderer.mjs';
 
 dotenv.config();
 
@@ -9,6 +10,7 @@ const workerLookup = {
   'analyzeImage': imageAnalysisWorker,
   'downloadImage': imageDownloadWorker,
   'renderImage': imageRenderWorker,
+  'renderVideo': videoRenderWorker,
 };
 
 workForever();

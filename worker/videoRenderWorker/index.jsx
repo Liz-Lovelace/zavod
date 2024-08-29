@@ -2,7 +2,6 @@ import { registerRoot } from 'remotion';
 import { Composition, AbsoluteFill } from 'remotion';
 import { Main } from './components/Main.jsx';
 import './utils/load-fonts.mjs';
-import config from '../config.mjs';
 
 export const RemotionRoot = () => {
   return (
@@ -15,7 +14,6 @@ export const RemotionRoot = () => {
         width={1080}
         height={1080}
         defaultProps={{
-          version: config.version,
           title: 'Потолочная люстра',
           flavorTexts: [
             'Место в интерьере: Для спальни',

@@ -2,7 +2,6 @@ import fs from 'fs/promises';
 import { render } from './render.mjs';
 import { uploadBuffer, listFiles } from '../src/utils/objectStorage.mjs';
 
-
 main();
 async function main() {
   let { items } = await getItems();

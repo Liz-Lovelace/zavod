@@ -1,6 +1,6 @@
 import sharp from 'sharp';
 import fs from 'fs/promises';
-import { propPrecedenceFromCategory, prettifyCategoryTitle } from './donplafonCategories.mjs';
+import { propPrecedenceFromCategory, prettifyCategoryTitle } from '../donplafonCategories.mjs';
 import config from '../../config.mjs';
 import { sleep } from '../../lib/utils.mjs';
 import { uploadBuffer } from '../../lib/storage.mjs';

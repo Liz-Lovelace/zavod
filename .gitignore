@@ -12,4 +12,4 @@ prisma/database.db
 workerStuff.zip
 boundingImage.jpeg
 todo.txt
-
+worker/videoRenderWorker/testOutput.mp4

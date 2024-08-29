@@ -9,11 +9,21 @@ import fs from 'fs/promises';
 dotenv.config();
 
 export async function composeTasks(client) {
-  let pureItemsOptions = client ? { where: { client } } : {};
-  let pureItems = await getPureItems(pureItemsOptions);
+  // IMAGE DOWNLOADING AND ANALYSIS
+  // let pureItemsOptions = client ? { where: { client } } : {};
+  // let pureItems = await getPureItems(pureItemsOptions);
   // let tasks = await downloadImageTasks(pureItems);
-  let tasks = await analyzeImageTasks(pureItems);
+  // let tasks = await analyzeImageTasks(pureItems);
 
+  // VIDEO RENDERING
+  let pureItemsOptions = client ? { 
+    where: { client },  
+    include: { images: true },
+  } : {};
+  let pureItems = await getPureItems(pureItemsOptions);
+  let tasks = await renderVideoTasks(pureItems);
+
+  // IMAGE RENDERING
   /*
   let imagesOptions = client ? { where: {
     pureItem: { client: client },
@@ -35,6 +45,38 @@ export async function composeTasks(client) {
   return tasks;
 }
 
+async function renderVideoTasks(pureItems) {
+  let tasks = [];
+  // listObjects takes a while on high-latency internet, you can remove it for testing
+  let renderedVideos = new Set(await listObjects(process.env.S3_VIDEORENDER_BUCKET_NAME));
+  pureItems.forEach((pureItem) => {
+    pureItem.images = pureItem.images.filter(image => image.uniqueAllColorsCount > 2000 || image.error)
+
+    if (pureItem.images.length < 3) {
+      return;
+    }
+
+    pureItem.images.forEach(image => {
+      image.downloadURL = cachedImageURLfromRemoteURL(image.url);
+    })
+
+    let uploadFilename = `${pureItem.offerId}.mp4`;
+
+    if (renderedVideos.has(uploadFilename)) {
+      return;
+    }
+
+    tasks.push({
+      task: 'renderVideo',
+      taskData: {
+        ...pureItem,
+        uploadFilename,
+      },
+    });
+  });
+
+  return tasks;
+}
 async function renderImageTasks(images) {
   let tasks = [];
   // listObjects takes a while on high-latency internet, you can remove it for testing
