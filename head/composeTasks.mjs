@@ -2,13 +2,17 @@ import { getPureItems, getAllImageIds, getImages, unpackagePureItem } from '../l
 import chalk from 'chalk';
 import { shuffle } from '../lib/utils.mjs';
 import config from '../config.mjs';
-import { cachedImageFilenameFromRemoteURL, cachedImageURLfromRemoteURL, listObjects, renderedImageFilename, renderedImageURLfromFilename } from '../lib/storage.mjs';
+import { cachedImageFilenameFromRemoteURL, cachedImageURLfromRemoteURL, listObjects, renderedImageFilename, renderedVideoURLfromFilename, renderedImageURLfromFilename } from '../lib/storage.mjs';
 import dotenv from 'dotenv';
 import fs from 'fs/promises';
 
 dotenv.config();
 
 export async function composeTasks(client) {
+  // JSON
+  await createClientJson();
+  
+
   // IMAGE DOWNLOADING AND ANALYSIS
   // let pureItemsOptions = client ? { where: { client } } : {};
   // let pureItems = await getPureItems(pureItemsOptions);
@@ -81,8 +85,6 @@ async function renderImageTasks(images) {
   let tasks = [];
   // listObjects takes a while on high-latency internet, you can remove it for testing
   let renderedImages = new Set(await listObjects(process.env.S3_IMAGERENDER_BUCKET_NAME));
-  // temporary shitty thing
-  // await createClientJson(renderedImages);
   images.forEach((image) => {
     let downloadURL = cachedImageURLfromRemoteURL(image.url);
     image.pureItem.shops.forEach(({ shop, ozonId }) => {
@@ -124,24 +126,34 @@ async function renderImageTasks(images) {
   return tasks;
 }
 
-async function createClientJson(images) {
-  let json = [];
+async function createClientJson() {
+  let images = new Set(await listObjects(process.env.S3_IMAGERENDER_BUCKET_NAME));
+  let videos = new Set(await listObjects(process.env.S3_VIDEORENDER_BUCKET_NAME));
+  let json = {videos: [], images: []};
+  videos.forEach(vid => {
+    let offerId = vid.split('.')[0];
+    let seoURL = renderedVideoURLfromFilename(vid);
+    json.videos.push({
+      'ID элемента': offerId,
+      seoURL,
+    });
+  });
   images.forEach(img => {
     let parts = img.split('-');
     let shop = parts[0];
     let offerId = parts[1];
     let ozonId = parts[2].split('.')[0];
     let seoURL = renderedImageURLfromFilename(img);
-    json.push({
+    json.images.push({
       'ID элемента': offerId,
       'Ozon Product ID': ozonId,
       shopId: shop,
       seoURL,
     });
   });
-  console.log('items in json:', json.length);
+  console.log('items in json:', json.videos.length, 'videos,', json.images.length, 'images');
 
-  await fs.writeFile('./SEOimages.json', JSON.stringify(json));
+  await fs.writeFile('./SEOmedia.json', JSON.stringify(json));
 }
 
 

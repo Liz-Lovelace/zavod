@@ -85,10 +85,6 @@
         <button id="nextButton" onClick="playNextVideo()">Next &gt;</button>
       </div>
       <p> If videos aren't loading, try disabling AdBlock </p>
-      <fieldset>
-        <legend> hey programmers! </legend>
-        <p> URLs and metadata for all the videos are available in <a href="./feed.json">JSON</a> and <a href="./feed.xml">XML</a> </p>
-      </fieldset>
     </main>
  
     <script>
@@ -97,20 +93,18 @@
       const nextButton = document.getElementById('nextButton');
       const currentlyShowing = document.getElementById('currentlyShowing');
  
-      let feed, videos;
+      let videos;
       let currentVideoIndex = 0;
  
       async function main() {
-        feed = await fetch('/feed.json').then(res => res.json());
-        videos = feed.videos;
-        shuffle(videos);
+        videos = await fetch('/rendered-videos').then(res => res.json());
         loadVideo();
       }
  
       function loadVideo() {
-        videoPlayer.src = videos[currentVideoIndex].url;
+        videoPlayer.src = videos[currentVideoIndex];
         videoPlayer.load();
-        currentlyShowing.innerHTML = `video id: ${videos[currentVideoIndex].offerId}       ${currentVideoIndex + 1} / ${videos.length}`;
+        currentlyShowing.innerHTML = `${currentVideoIndex + 1} / ${videos.length}`;
         updateButtonStates();
       }
  
