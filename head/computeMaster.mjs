@@ -9,6 +9,24 @@ let startupScriptId = '43f155bd-1e24-4171-90e6-0e72f134dc08';
 let startupScriptBody = `#!/bin/bash
 touch /root/abc
 apt install htop npm screen neovim -y &>> /root/errors.txt
+
+# remotion dependencies
+apt install -y \
+  libnss3 \
+  libdbus-1-3 \
+  libatk1.0-0 \
+  libgbm-dev \
+  libasound2 \
+  libxrandr2 \
+  libxkbcommon-dev \
+  libxfixes3 \
+  libxcomposite1 \
+  libxdamage1 \
+  libatk-bridge2.0-0 \
+  libpango1.0-dev \
+  libcups2-dev
+
+
 npm install -g yarn n &>> /root/errors.txt
 n latest &>> /root/errors.txt
 hash -r &>> /root/errors.txt
