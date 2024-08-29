@@ -11,9 +11,8 @@ dotenv.config();
 export async function composeTasks(client) {
   let pureItemsOptions = client ? { where: { client } } : {};
   let pureItems = await getPureItems(pureItemsOptions);
-  let tasks = await downloadImageTasks(pureItems);
-  console.log(tasks.length)
-  // let tasks = await analyzeImageTasks(pureItems);
+  // let tasks = await downloadImageTasks(pureItems);
+  let tasks = await analyzeImageTasks(pureItems);
 
   /*
   let imagesOptions = client ? { where: {
@@ -131,10 +130,6 @@ async function analyzeImageTasks(pureItems) {
   let completedImages = await getAllImageIds();
   pureItems.forEach(({ id: pureItemId, remoteImages }) => {
     remoteImages.forEach((url, index) => {
-      if (index !== 0) {
-        return;
-      }
-
       if (completedImages.has(url)) {
         return;
       }
