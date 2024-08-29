@@ -2,7 +2,7 @@ import { parse } from 'csv-parse/sync';
 import { download, sleep } from '../../lib/utils.mjs';
 import FS from 'fs';
 import purifyItem from './itemsPurifier.mjs';
-import { getIdFromOzonIdLookup } from './ozonIdLookups.mjs';
+import Excel from 'exceljs';
 
 const fs = {
   ...FS.promises,
@@ -16,12 +16,10 @@ export default async function* getPureItems() {
     await download('https://prod-feed.donplafon.ru/catalog_export/csv/production/all.csv', feedPath);
   }
 
+  let shopItems = await getShopItems();
+
   console.log('reading props csv');
   let propsFromId = await csvToIdDict(feedPath, 'ID элемента');
-  console.log('composing ozon id lookups');
-  let idFromOzonId = await getIdFromOzonIdLookup(propsFromId);
-  console.log('matching up items with shop ids');
-  let shopItems = await getShopItems(idFromOzonId);
 
   for (let { id, shops } of shopItems) {
     let props = propsFromId[id];
@@ -41,26 +39,37 @@ export default async function* getPureItems() {
   }
 }
 
-async function getShopItems(idFromOzonId) {
+ async function getShopItems() {
   let shopItemFromId = {};
   for (let shop of [106397, 106692, 35923, 63614]) {
-    let path = new URL(`file:./materials/${shop}.csv`, import.meta.url);
-    let shopItems = await readCsv(path);
-    for (let shopItem of shopItems) {
-      let ozonId = shopItem['Ozon Product ID'];
+    let path = new URL(`file:./materials/${shop}.xlsx`, import.meta.url);
+    let workbook = new Excel.Workbook();
+    await workbook.xlsx.readFile(path.pathname);
+    let worksheet = workbook.getWorksheet(1);
+    
+    worksheet.eachRow((row, rowNumber) => {
+      if (rowNumber <= 1) {
+        return; 
+      }
+      
+      let id = row.getCell(1).value;
+      let ozonId = row.getCell(3).value;
+      
+      if (!id || !ozonId) {
+        console.log(`broken shop item!`, shop, id, ozonId)
+        return;
+      }
+      
       let shopInfo = {
         shop,
         ozonId,
       };
-      let id = idFromOzonId[shop][ozonId];
-      if (!id) {
-        continue;
-      }
+      
       if (!shopItemFromId[id]) {
         shopItemFromId[id] = [];
       }
       shopItemFromId[id].push(shopInfo);
-    }
+    });
   }
 
   let shopItems = Object.entries(shopItemFromId).map(([id, shops]) => ({ id, shops }));

@@ -84,8 +84,8 @@
       let html = '';
 
       let servers = analytics.serverPerformances;
-      let hoursSinceBegin = Math.round((Date.now() / 1000 - analytics.startTimestamp) / 3600 * 10) / 10
-      let hoursRemaining = Math.round(analytics.remainingTasks / servers.all.allTimeTasksPerHour * 10) / 10
+      let hoursSinceBegin = Math.round((Date.now() / 1000 - analytics.startTimestamp) / 3600 * 100) / 100
+      let hoursRemaining = Math.round(analytics.remainingTasks / servers.all.lastMinTasksPerHour * 100) / 100
       html += `
         <p>
           Completed tasks: <span>${analytics.completedTasks} / ${analytics.completedTasks + analytics.remainingTasks} (${Math.round(analytics.completedTasks / (analytics.completedTasks + analytics.remainingTasks) * 100)}%)</span>

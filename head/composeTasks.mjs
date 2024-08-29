@@ -9,11 +9,13 @@ import fs from 'fs/promises';
 dotenv.config();
 
 export async function composeTasks(client) {
-  // let pureItemsOptions = client ? { where: { client } } : {};
-  // let pureItems = await getPureItems(pureItemsOptions);
-  // let tasks = await downloadImageTasks(pureItems);
+  let pureItemsOptions = client ? { where: { client } } : {};
+  let pureItems = await getPureItems(pureItemsOptions);
+  let tasks = await downloadImageTasks(pureItems);
+  console.log(tasks.length)
   // let tasks = await analyzeImageTasks(pureItems);
 
+  /*
   let imagesOptions = client ? { where: {
     pureItem: { client: client },
     index: 0,
@@ -28,18 +30,18 @@ export async function composeTasks(client) {
   });
   images = images.filter(image => image.medianEdgeBrightness == 255);
   let tasks = await renderImageTasks(images);
+  */
 
   shuffle(tasks);
   return tasks;
 }
 
 async function renderImageTasks(images) {
-  // images = images.filter(image => image.pureItem.shops.some(({ shop }) => shop == '63614'));
   let tasks = [];
   // listObjects takes a while on high-latency internet, you can remove it for testing
-  // let renderedImages = new Set(await listObjects(process.env.S3_IMAGERENDER_BUCKET_NAME));
+  let renderedImages = new Set(await listObjects(process.env.S3_IMAGERENDER_BUCKET_NAME));
   // temporary shitty thing
-  // await createClientJson(renderedImages);
+  await createClientJson(renderedImages);
   images.forEach((image) => {
     let downloadURL = cachedImageURLfromRemoteURL(image.url);
     image.pureItem.shops.forEach(({ shop, ozonId }) => {
@@ -61,11 +63,9 @@ async function renderImageTasks(images) {
 
       let uploadFilename = renderedImageFilename(shop, image.pureItem.offerId, ozonId, image.url);
 
-      /*
       if (renderedImages.has(uploadFilename)) {
         return;
       }
-      */
 
       tasks.push({
         task: 'renderImage',
