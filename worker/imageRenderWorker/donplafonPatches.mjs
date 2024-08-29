@@ -159,6 +159,7 @@ async function addRoomdecorPlaque(patch, position) {
 }
 
 async function addTextToPatch(patchName, patchBg, text) {
+  let textColor = colors['lampochkiText'];
   if (patchName == 'lumens') {
     let lumens = await textBuffer({
       text: text[0],

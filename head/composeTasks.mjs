@@ -16,15 +16,16 @@ export async function composeTasks(client) {
   // let tasks = await analyzeImageTasks(pureItems);
 
   // VIDEO RENDERING
+  /*
   let pureItemsOptions = client ? { 
     where: { client },  
     include: { images: true },
   } : {};
   let pureItems = await getPureItems(pureItemsOptions);
   let tasks = await renderVideoTasks(pureItems);
+  */
 
   // IMAGE RENDERING
-  /*
   let imagesOptions = client ? { where: {
     pureItem: { client: client },
     index: 0,
@@ -39,7 +40,6 @@ export async function composeTasks(client) {
   });
   images = images.filter(image => image.medianEdgeBrightness == 255);
   let tasks = await renderImageTasks(images);
-  */
 
   shuffle(tasks);
   return tasks;
@@ -82,7 +82,7 @@ async function renderImageTasks(images) {
   // listObjects takes a while on high-latency internet, you can remove it for testing
   let renderedImages = new Set(await listObjects(process.env.S3_IMAGERENDER_BUCKET_NAME));
   // temporary shitty thing
-  await createClientJson(renderedImages);
+  // await createClientJson(renderedImages);
   images.forEach((image) => {
     let downloadURL = cachedImageURLfromRemoteURL(image.url);
     image.pureItem.shops.forEach(({ shop, ozonId }) => {
@@ -93,9 +93,11 @@ async function renderImageTasks(images) {
         '35923':  'donplafon',
       }[shop];
 
+      /*
       if (shopName == 'lampochki') {
         return;
       }
+      */
       // if (shopName == 'roomdecor') return
 
       if (!['roomdecor', 'lampochki'].includes(shopName)) {

@@ -26,9 +26,7 @@ async function startup() {
   if (config.dumpDB) {
     await dumpImages();
   }
-  /*
   await shutdownCompute();
-  */
   for (let i = 0; i < config.serverCount; i++) {
     await createServer();
   }
@@ -43,7 +41,7 @@ app.get('/task', authenticateWorker, async(req, res) => {
   if (tasks.length === 0) {
     res.status(404).json({ message: 'No more tasks available' });
     if (!busy) {
-      // await shutdownCompute();
+      await shutdownCompute();
       busy = true;
     }
     return;
