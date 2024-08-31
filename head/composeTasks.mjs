@@ -10,7 +10,7 @@ dotenv.config();
 
 export async function composeTasks(client) {
   // JSON
-  await createClientJson();
+  // await createClientJson();
   
 
   // IMAGE DOWNLOADING AND ANALYSIS
@@ -20,16 +20,15 @@ export async function composeTasks(client) {
   // let tasks = await analyzeImageTasks(pureItems);
 
   // VIDEO RENDERING
-  /*
   let pureItemsOptions = client ? { 
     where: { client },  
     include: { images: true },
   } : {};
   let pureItems = await getPureItems(pureItemsOptions);
   let tasks = await renderVideoTasks(pureItems);
-  */
 
   // IMAGE RENDERING
+  /*
   let imagesOptions = client ? { where: {
     pureItem: { client: client },
     index: 0,
@@ -44,6 +43,7 @@ export async function composeTasks(client) {
   });
   images = images.filter(image => image.medianEdgeBrightness == 255);
   let tasks = await renderImageTasks(images);
+  */
 
   shuffle(tasks);
   return tasks;
@@ -52,7 +52,7 @@ export async function composeTasks(client) {
 async function renderVideoTasks(pureItems) {
   let tasks = [];
   // listObjects takes a while on high-latency internet, you can remove it for testing
-  let renderedVideos = new Set(await listObjects(process.env.S3_VIDEORENDER_BUCKET_NAME));
+  // let renderedVideos = new Set(await listObjects(process.env.S3_VIDEORENDER_BUCKET_NAME));
   pureItems.forEach((pureItem) => {
     pureItem.images = pureItem.images.filter(image => image.uniqueAllColorsCount > 2000 || image.error)
 
@@ -66,9 +66,11 @@ async function renderVideoTasks(pureItems) {
 
     let uploadFilename = `${pureItem.offerId}.mp4`;
 
+    /*
     if (renderedVideos.has(uploadFilename)) {
       return;
     }
+    */
 
     tasks.push({
       task: 'renderVideo',
@@ -78,6 +80,8 @@ async function renderVideoTasks(pureItems) {
       },
     });
   });
+
+  // return Array(1000).fill(tasks.find(t => t.taskData.offerId == 364230))
 
   return tasks;
 }

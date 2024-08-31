@@ -3,7 +3,7 @@ let config = {
   mockCompute: true,
   dumpDB: false,
   debugImageRenderer: true,
-  debugVideoRenderer: false,
+  debugVideoRenderer: true,
 };
 
 export default config;

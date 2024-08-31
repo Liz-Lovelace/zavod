@@ -18,10 +18,10 @@ export function Main({ version, images, itemInfo, flavorTexts, title }) {
   return (
     <>
       <TransitionSeries>
-        {images.map((imageURL, index) => (
+        {images.map((image, index) => (
           <>
             <TransitionSeries.Sequence durationInFrames={imageDuration + transitionDuration}>
-              <PlafonImage imageURL={imageURL} index={index}/>
+              <PlafonImage image={image} index={index}/>
               { index == 0 ?
                 <Title text={title} /> :
                 <FlavorText text={flavorTexts[index - 1]} index={index - 1}/>

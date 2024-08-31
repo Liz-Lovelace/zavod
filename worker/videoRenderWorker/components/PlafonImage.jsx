@@ -2,7 +2,7 @@ import React from 'react';
 import { Img, staticFile, AbsoluteFill, useCurrentFrame, useVideoConfig } from 'remotion';
 import { interpolateStyles } from '@remotion/animation-utils';
 
-export function PlafonImage({ imageURL, index }) {
+export function PlafonImage({ image, index }) {
   const { durationInFrames } = useVideoConfig();
 
   const alternator = index % 2 == 0 ? -1 : 1;
@@ -38,23 +38,30 @@ export function PlafonImage({ imageURL, index }) {
     ...imgStyle,
     width: '100%',
     height: '100%',
+    objectFit: 'contain',
+  }
+
+  let averageEdgeColor = image.averageEdgeColor.split('|')
+  let backgroundColor = (image.medianEdgeBrightness == 255 || image.medianEdgeBrightness == 0) ?
+    `rgb(${image.medianEdgeBrightness}, ${image.medianEdgeBrightness}, ${image.medianEdgeBrightness})`
+    : `rgb(${averageEdgeColor[0]}, ${averageEdgeColor[1]}, ${averageEdgeColor[2]})`
+
+  let parentStyle = {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    backgroundColor,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   };
 
   return (
     <AbsoluteFill>
       <div style={parentStyle} >
-        <Img style={imgStyle} src={imageURL} />
+        <Img style={imgStyle} src={image.downloadURL} />
       </div>
     </AbsoluteFill>
   );
 }
 
-const parentStyle = {
-  position: 'absolute',
-  width: '100%',
-  height: '100%',
-  backgroundColor: 'white',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-};

@@ -11,6 +11,8 @@ import { render } from './render.mjs';
 dotenv.config();
 
 export async function videoRenderWorker( item ) {
+  console.log('rendering item ID', item.offerId)
+
   let [category, subcategory] = item.rawProperties.categoryStack;
   let propPrecedence = propPrecedenceFromCategory(subcategory, category);
   let flavorTexts = pickProps(item.rawProperties, propPrecedence)
@@ -23,17 +25,6 @@ export async function videoRenderWorker( item ) {
   };
 
   let outputVideo = await render(props)
-
-  /*
-  await render('testVideo', {
-    ...item,
-    images: arrangeImages(item.images),
-
-    itemInfo: `${item.images.length} images ID ${item.id}`,
-    flavorTexts: getInterestingParams(item),
-    title: prettyTitle(item.name),
-  });
-  */
 
   if (!config.debugVideoRenderer) {
     await uploadBuffer(process.env.S3_VIDEORENDER_BUCKET_NAME, item.uploadFilename, outputVideo.buffer);
@@ -68,7 +59,6 @@ function prettyTitle(str) {
 
 function arrangeImages(images) {
   images.sort((a, b) => a.index - b.index)
-  images = images.map(image => image.downloadURL)
 
   let maxLength = 6;
   let removeCount = images.length - maxLength;
@@ -182,13 +172,13 @@ function formatProp(propKey, propValue) {
     return `Температура ${propValue}`;
   }
   else if (propKey == 'Световой поток, лм') {
-    return `${propValue}`;
+    return `Световой поток: ${propValue}лм`;
   }
   else if (propKey == 'Возможность подключения диммера') {
     return 'Подходит к диммеру';
   }
   else if (propKey == 'Диаметр врезного отверстия, мм') {
-    `Врезное отверстие ${propValue}мм`;
+    return `Врезное отверстие ${propValue}мм`;
   }
   else if (propKey == 'Тип шинопровода') {
     return `${propValue} шинопровод`;
@@ -196,8 +186,7 @@ function formatProp(propKey, propValue) {
   else if (propKey == 'Количество фаз') {
     return propValue;
   }
-  else {
-    console.log('unknown prop flavortext!!', propKey, propValue)
-    return `${propKey}: ${propValue}`;
-  }
+
+  console.log('unknown prop flavortext!!', propKey, propValue)
+  return `${propKey}: ${propValue}`;
 }
