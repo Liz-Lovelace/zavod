@@ -10,7 +10,8 @@ dotenv.config();
 
 export async function composeTasks(client) {
   // JSON
-  // await createClientJson();
+  await createClientJson();
+  return;
   
 
   // IMAGE DOWNLOADING AND ANALYSIS
@@ -20,12 +21,14 @@ export async function composeTasks(client) {
   // let tasks = await analyzeImageTasks(pureItems);
 
   // VIDEO RENDERING
+  /*
   let pureItemsOptions = client ? { 
     where: { client },  
     include: { images: true },
   } : {};
   let pureItems = await getPureItems(pureItemsOptions);
   let tasks = await renderVideoTasks(pureItems);
+  */
 
   // IMAGE RENDERING
   /*
@@ -159,7 +162,7 @@ async function createClientJson() {
   });
   console.log('items in json:', json.videos.length, 'videos,', json.images.length, 'images');
 
-  await fs.writeFile('./SEOmedia.json', JSON.stringify(json));
+  await fs.writeFile('./websites/public/SEOmedia.json', JSON.stringify(json));
 }
 
 
