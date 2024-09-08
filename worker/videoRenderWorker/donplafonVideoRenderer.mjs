@@ -106,10 +106,7 @@ function pickProps(props, propPrecedence) {
 
 
 function formatProp(propKey, propValue) {
-  if (propKey == 'Тип крепления') {
-    return `${propKey}: ${propValue}`;
-  }
-  else if (propKey == 'Наличие выключателя') {
+  if (propKey == 'Наличие выключателя') {
     if (propValue == 'Да') {
       return 'С выключателем';
     }
@@ -124,31 +121,22 @@ function formatProp(propKey, propValue) {
     return propKey;
   }
   else if (propKey == 'Площадь освещения') {
-    return `${propKey} ${propValue}м²`;
-  }
-  else if (propKey == 'Цоколь') {
-    return `${propKey} ${propValue}`;
+    return `${propKey}: ${propValue}м²`;
   }
   else if (propKey == 'Общая мощность, W') {
     return `Общая мощность: ${propValue}W`;
   }
-  else if (propKey == 'Страна') {
-    return propValue;
-  }
-  else if (propKey == 'Гарантия') {
-    return `${propKey} ${propValue}`;
-  }
   else if (propKey == 'Количество ламп') {
-    return `${propValue} ${multipleNoun(parseInt(propValue), 'лампа', 'лампы', 'ламп')}`;
+    return `${propValue}: ${multipleNoun(parseInt(propValue), 'лампа', 'лампы', 'ламп')}`;
   }
   else if (propKey == 'Длина подвеса в мм') {
-    return `Длина подвеса ${propValue}мм`;
+    return `Длина подвеса: ${propValue}мм`;
   }
   else if (propKey == 'Для натяжных потолков') {
     return propKey;
   }
   else if (propKey == 'Степень защиты (IP)') {
-    return `Степень защиты IP${propValue}`;
+    return `Степень защиты: IP${propValue}`;
   }
   else if (propKey == 'Для низких потолков') {
     return propKey;
@@ -169,7 +157,7 @@ function formatProp(propKey, propValue) {
     return lookup[propValue];
   }
   else if (propKey == 'Цветовая температура') {
-    return `Температура ${propValue}`;
+    return `Температура: ${propValue}`;
   }
   else if (propKey == 'Световой поток, лм') {
     return `Световой поток: ${propValue}лм`;
@@ -178,7 +166,7 @@ function formatProp(propKey, propValue) {
     return 'Подходит к диммеру';
   }
   else if (propKey == 'Диаметр врезного отверстия, мм') {
-    return `Врезное отверстие ${propValue}мм`;
+    return `Врезное отверстие: ${propValue}мм`;
   }
   else if (propKey == 'Тип шинопровода') {
     return `${propValue} шинопровод`;
@@ -187,6 +175,5 @@ function formatProp(propKey, propValue) {
     return propValue;
   }
 
-  console.log('unknown prop flavortext!!', propKey, propValue)
   return `${propKey}: ${propValue}`;
 }

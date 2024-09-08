@@ -12,7 +12,7 @@ export function Title({ text }) {
     [{  transform: 'translateY(50px)' },
       {   transform: 'translateY(0)' }],
     {
-      easing: Easing.bezier(0.95, 0.1, 0, 1),
+      easing: Easing.bezier(0.74,0.13,0.22,0.96),
       extrapolateRight: 'clamp',
     },
   );
@@ -41,7 +41,7 @@ const staticTitleStyle = {
   color: 'white',
   textShadow: '0.07em 0.07em black, 0.03em 0.07em black, 0.07em 0.05em black',
   borderBottom: '10px solid #0001',
-  backgroundColor: '#00000025',
+  backgroundColor: '#00000070',
   fontSize: '80px',
   padding: '110px 30px 10px',
   position: 'absolute',

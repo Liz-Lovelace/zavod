@@ -1,7 +1,8 @@
 import dotenv from 'dotenv';
 import imageAnalysisWorker from './imageAnalysisWorker.mjs';
 import imageDownloadWorker from './imageDownloadWorker.mjs';
-import { imageRenderWorker } from './imageRenderWorker/donplafonImageRenderer.mjs';
+// import { imageRenderWorker } from './imageRenderWorker/donplafonImageRenderer.mjs';
+import { imageRenderWorker } from './imageRenderWorker2/donplafonImageRenderer.mjs';
 import { videoRenderWorker } from './videoRenderWorker/donplafonVideoRenderer.mjs';
 
 dotenv.config();

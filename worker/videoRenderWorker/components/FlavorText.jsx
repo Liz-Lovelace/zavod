@@ -19,7 +19,7 @@ const plafonInfoStyle = {
   backgroundColor: '#0009',
   color: 'white',
   fontSize: '60px',
-  padding: '0.1em 0.6em',
+  padding: '0.4em 0.6em',
   position: 'absolute',
   textAlign: 'left',
   fontFamily: 'Euclid Triangle',
