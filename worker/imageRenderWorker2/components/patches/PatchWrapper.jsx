@@ -60,8 +60,6 @@ const PatchWrapper = ({ patchName, patchData, patchColor, style, patchRef, posit
     wrapperStyle.marginLeft = `calc(-1000px + 60px)`
   }
 
-  //<rect x="2" y="2" width="${width - 4}" height="${height - 4}" rx="${height / 2}" fill="white" fill-opacity="0.5" stroke="#023897" stroke-width="2"/>
-
   return (
     <div style={wrapperStyle}>
       <PatchComponent patchData={patchData} patchColor={patchColor} position={{right: style.right, left: style.left}} patchRef={patchRef} />
