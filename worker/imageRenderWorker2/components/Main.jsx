@@ -114,7 +114,7 @@ export function Main({ downloadURL, patches, categoryTitle, medianEdgeBrightness
         />
       ))}
       <PatchMeasurer patchList={patchList} style={extraStyles} onPatchSizesMeasured={handlePatchSizesMeasured} />
-      <Img src={staticFile('ozon-overlay.png')} style={{position: 'absolute', top: 0}}  />
     </div>
   );
+      // <Img src={staticFile('ozon-overlay.png')} style={{position: 'absolute', top: 0}}  />
 }
