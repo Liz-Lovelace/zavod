@@ -19,12 +19,10 @@ export function Main({ downloadURL, patches, categoryTitle, medianEdgeBrightness
   downloadURL = 'https://source-image-cache.ams1.vultrobjects.com/aHR0cHM6Ly9wYXJ0bmVycy5kb25wbGFmb24ucnUvdXBsb2FkL2libG9jay8zYWUvbmZ0ZjJ3c3J3bXA5eHRoeWNoMWNvNHVnbXB6a2IwdmQvcG9kdmVzbmF5YV9seXVzdHJhX2x1c3NvbGVfY3JlbnNoYXdfbHNwXzcwMDkuanBn.jpg';
 
   patches = [
-    { patchName: 'LampCount', patchData: '1' },
-    { patchName: 'Power', patchData: '1000000' },
-    { patchName: 'StretchyCeiling', patchData: '' },
-    { patchName: 'Guarantee', patchData: '12 Months' },
+    { patchName: 'WireLength', patchData: '1 month' },
+    { patchName: 'Area', patchData: '1' },
   ]
-  categoryTitle = 'lystra na shtangee'
+  categoryTitle = 'bruhaaaaaaaaaaaac'
   medianEdgeBrightness = 255;
   */
 

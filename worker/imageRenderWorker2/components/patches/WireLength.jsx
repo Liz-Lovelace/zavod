@@ -9,13 +9,13 @@ export default function({ patchData, patchRef, position }) {
   };
 
   const textStyle = {
-    marginBottom: '-8px',
+    marginBottom: '10px',
   };
 
   return (
     <div ref={patchRef} style={patchStyle}>
-      <div style={textStyle}>
-        <div>{patchData}мм</div>
+      <div>
+        <div style={textStyle}>{patchData}мм</div>
         <div style={{fontSize: '29px'}}> ДЛИНА ПОДВЕСА </div>
       </div>
     </div>

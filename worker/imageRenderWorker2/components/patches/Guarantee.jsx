@@ -9,13 +9,13 @@ export default function({ patchData, patchRef, position }) {
   };
 
   const textStyle = {
-    marginBottom: '-8px',
+    marginBottom: '10px',
   };
 
   return (
     <div ref={patchRef} style={patchStyle}>
-      <div style={textStyle}>
-        <div>{patchData}</div>
+      <div>
+        <div style={textStyle}>{patchData}</div>
         <div style={{fontSize: '29px'}}> ГАРАНТИЯ </div>
       </div>
     </div>
