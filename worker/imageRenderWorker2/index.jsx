@@ -4,11 +4,6 @@ import { Main } from './components/Main.jsx';
 import config from '../config.mjs';
 
 export const RemotionRoot = () => {
-  const imgStyle = {
-    width: '100%',
-    height: '100%',
-  };
-
   return (
     <>
       <Still
@@ -22,5 +17,3 @@ export const RemotionRoot = () => {
 };
 
 registerRoot(RemotionRoot);
-
-

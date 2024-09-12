@@ -1,19 +1,122 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Img } from 'remotion';
-import PseudoPatch from './patches/PseudoPatch';
+import React, { useState, useRef } from 'react';
+import { Img, staticFile } from 'remotion';
+import PatchWrapper from './patches/PatchWrapper';
+import { PatchMeasurer } from './PatchMeasurer';
+import CategoryTitle from './CategoryTitle'
 
-export function Main({ downloadURL }) {
-  downloadURL = 'https://partners.donplafon.ru/upload/iblock/bb1/12jwb29nkotxir9a9adxw82p64pgilee/potolochnaya_lyustra_evoluce_raito_sle1105_402_06.jpg'
+const patchPositions = [
+  { bottom: '220px', left: '0px' },
+  { top: '240px', right: '0px' },
+  { bottom: '60px', right: '0px' },
+];
 
-  let texts = ['33333', '11', '2222'];
+const colors = {
+  homedecor: '#013eb1',
+}
+
+export function Main({ downloadURL, patches, categoryTitle, medianEdgeBrightness, averageEdgeColor}) {
+  /*
+  downloadURL = 'https://source-image-cache.ams1.vultrobjects.com/aHR0cHM6Ly9wYXJ0bmVycy5kb25wbGFmb24ucnUvdXBsb2FkL2libG9jay8zYWUvbmZ0ZjJ3c3J3bXA5eHRoeWNoMWNvNHVnbXB6a2IwdmQvcG9kdmVzbmF5YV9seXVzdHJhX2x1c3NvbGVfY3JlbnNoYXdfbHNwXzcwMDkuanBn.jpg';
+
+  patches = [
+    { patchName: 'LampCount', patchData: '1' },
+    { patchName: 'Power', patchData: '1000000' },
+    { patchName: 'StretchyCeiling', patchData: '' },
+    { patchName: 'Guarantee', patchData: '12 Months' },
+  ]
+  categoryTitle = 'lystra na shtangee'
+  medianEdgeBrightness = 255;
+  */
+
+  let backgroundColor = (medianEdgeBrightness == 255 || medianEdgeBrightness == 0) ?
+    `rgb(${medianEdgeBrightness}, ${medianEdgeBrightness}, ${medianEdgeBrightness})`
+    : `rgb(${averageEdgeColor[0]}, ${averageEdgeColor[1]}, ${averageEdgeColor[2]})`
+
+
+  let topStyle = {
+    fontFamily: 'handel',
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    margin: 0,
+    padding: 0,
+    backgroundColor,
+  }
+
+
+  let imgWidth = '80%';
+  let imgStyle = {
+    width: imgWidth,
+    height: imgWidth,
+    left: `calc((100% - ${imgWidth})/2)`,
+    top: `calc((100% - ${imgWidth})/3)`,
+    position: 'absolute',
+    objectFit: 'contain',
+  }
+
+
+  const [patchList, setPatchList] = useState(patches);
+  const [renderPatchList, setRenderPatchList] = useState([]);
+
+  const [patchSizes, setPatchSizes] = useState({});
+
+  const handlePatchSizesMeasured = (sizes) => {
+    setPatchSizes(sizes);
+    
+    let sortedPatches = [...patchList].sort((a, b) => {
+      const aWidth = sizes[patchList.indexOf(a)]?.width || 0;
+      const bWidth = sizes[patchList.indexOf(b)]?.width || 0;
+
+      return bWidth - aWidth;
+    });
+
+    if (sortedPatches.length > 2) {
+      sortedPatches = sortedPatches.filter((patch, index) => {
+        if (index >= 2) {
+          const patchWidth = sizes[patchList.indexOf(patch)]?.width || 0;
+          return patchWidth <= 290;
+        }
+        return true;
+      });
+    }    
+    setRenderPatchList(sortedPatches);
+  };
+
+  let extraStyles = {
+    color: colors.homedecor,
+    fontSize: '50px',
+    lineHeight: 1,
+    zoom: '0.85',
+  }
+
+  let categoryTitleStyle = {
+    color: colors.homedecor,
+    top: '40px',
+  };
 
   return (
-    <>
-      <Img src={downloadURL} />
-      <PseudoPatch t="TITLE" style={{ top: '60px', left: '40px' }} />
-      <PseudoPatch t={texts[0]} style={{ bottom:'200px', left: '40px' }} />
-      <PseudoPatch t={texts[1]} style={{ top:'220px', right: '40px' }} />
-      <PseudoPatch t={texts[2]} style={{ bottom:'40px', right: '40px' }} />
-    </>
+    <div style={topStyle}>
+      <Img src={downloadURL} style={imgStyle} />
+      <Img src={staticFile('homedecor-bg.png')}  />
+      <PatchWrapper
+        key={-1}
+        patchName='CategoryTitle'
+        patchData={categoryTitle.toUpperCase()}
+        style={categoryTitleStyle}
+        patchRef={null}
+      />
+      {renderPatchList.slice(0, 3).map(({ patchData, patchName }, index) => (
+        <PatchWrapper
+          key={index}
+          patchName={patchName}
+          patchData={patchData.toUpperCase()}
+          patchColor={colors.homedecor}
+          style={{ ...patchPositions[index], ...extraStyles }}
+          patchRef={null}
+        />
+      ))}
+      <PatchMeasurer patchList={patchList} style={extraStyles} onPatchSizesMeasured={handlePatchSizesMeasured} />
+      <Img src={staticFile('ozon-overlay.png')} style={{position: 'absolute', top: 0}}  />
+    </div>
   );
 }

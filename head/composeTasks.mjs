@@ -10,8 +10,10 @@ dotenv.config();
 
 export async function composeTasks(client) {
   // JSON
+  /*
   await createClientJson();
   return;
+  */
   
 
   // IMAGE DOWNLOADING AND ANALYSIS
@@ -31,7 +33,6 @@ export async function composeTasks(client) {
   */
 
   // IMAGE RENDERING
-  /*
   let imagesOptions = client ? { where: {
     pureItem: { client: client },
     index: 0,
@@ -46,7 +47,6 @@ export async function composeTasks(client) {
   });
   images = images.filter(image => image.medianEdgeBrightness == 255);
   let tasks = await renderImageTasks(images);
-  */
 
   shuffle(tasks);
   return tasks;
@@ -102,14 +102,14 @@ async function renderImageTasks(images) {
         '35923':  'donplafon',
       }[shop];
 
+
       /*
-      if (shopName == 'lampochki') {
+      if (!['roomdecor', 'lampochki'].includes(shopName)) {
         return;
       }
       */
-      if (shopName == 'roomdecor') return
 
-      if (!['roomdecor', 'lampochki'].includes(shopName)) {
+      if (!['homedecor'].includes(shopName)) {
         return;
       }
 
