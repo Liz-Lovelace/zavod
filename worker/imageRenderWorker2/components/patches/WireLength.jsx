@@ -16,7 +16,7 @@ export default function({ patchData, patchRef, position }) {
     <div ref={patchRef} style={patchStyle}>
       <div>
         <div style={textStyle}>{patchData}мм</div>
-        <div style={{fontSize: '29px'}}> ДЛИНА ПОДВЕСА </div>
+        <div style={{fontSize: '35px'}}> ДЛИНА ПОДВЕСА </div>
       </div>
     </div>
   );

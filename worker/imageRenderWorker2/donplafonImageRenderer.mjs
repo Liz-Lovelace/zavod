@@ -61,6 +61,7 @@ export async function imageRenderWorker({ shop, uploadFilename, downloadURL, ave
     categoryTitle,
     averageEdgeColor,
     medianEdgeBrightness,
+    shop,
   })
 
   if (!config.debugImageRenderer) {

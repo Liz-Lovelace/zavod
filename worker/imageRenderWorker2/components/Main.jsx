@@ -12,18 +12,30 @@ const patchPositions = [
 
 const colors = {
   homedecor: '#013eb1',
+  donplafon: '#ffffff',
 }
 
-export function Main({ downloadURL, patches, categoryTitle, medianEdgeBrightness, averageEdgeColor}) {
+const fonts = {
+  homedecor: 'handel',
+  donplafon: 'pppangram',
+}
+
+const overlays = {
+  homedecor: 'homedecor-bg.png',
+}
+
+export function Main({ downloadURL, patches, categoryTitle, medianEdgeBrightness, averageEdgeColor, shop}) {
   /*
   downloadURL = 'https://source-image-cache.ams1.vultrobjects.com/aHR0cHM6Ly9wYXJ0bmVycy5kb25wbGFmb24ucnUvdXBsb2FkL2libG9jay8zYWUvbmZ0ZjJ3c3J3bXA5eHRoeWNoMWNvNHVnbXB6a2IwdmQvcG9kdmVzbmF5YV9seXVzdHJhX2x1c3NvbGVfY3JlbnNoYXdfbHNwXzcwMDkuanBn.jpg';
 
   patches = [
-    { patchName: 'WireLength', patchData: '1 month' },
     { patchName: 'Area', patchData: '1' },
+    { patchName: 'WireLength', patchData: '1880' },
   ]
-  categoryTitle = 'bruhaaaaaaaaaaaac'
+  categoryTitle = 'Люстра на штанге'
   medianEdgeBrightness = 255;
+  // shop = 'homedecor'
+  shop = 'donplafon'
   */
 
   let backgroundColor = (medianEdgeBrightness == 255 || medianEdgeBrightness == 0) ?
@@ -32,7 +44,7 @@ export function Main({ downloadURL, patches, categoryTitle, medianEdgeBrightness
 
 
   let topStyle = {
-    fontFamily: 'handel',
+    fontFamily: fonts[shop],
     position: 'absolute',
     width: '100%',
     height: '100%',
@@ -81,40 +93,44 @@ export function Main({ downloadURL, patches, categoryTitle, medianEdgeBrightness
   };
 
   let extraStyles = {
-    color: colors.homedecor,
+    color: colors[shop],
     fontSize: '50px',
     lineHeight: 1,
     zoom: '0.85',
   }
 
   let categoryTitleStyle = {
-    color: colors.homedecor,
+    color: colors[shop],
     top: '40px',
   };
 
   return (
     <div style={topStyle}>
       <Img src={downloadURL} style={imgStyle} />
-      <Img src={staticFile('homedecor-bg.png')}  />
+      {overlays[shop] && (
+        <Img src={staticFile(overlays[shop])} style={{position: 'absolute', top: 0}} />
+      )}
       <PatchWrapper
         key={-1}
         patchName='CategoryTitle'
         patchData={categoryTitle.toUpperCase()}
         style={categoryTitleStyle}
         patchRef={null}
+        shop={shop}
       />
       {renderPatchList.slice(0, 3).map(({ patchData, patchName }, index) => (
         <PatchWrapper
           key={index}
           patchName={patchName}
           patchData={patchData.toUpperCase()}
-          patchColor={colors.homedecor}
+          patchColor={colors[shop]}
           style={{ ...patchPositions[index], ...extraStyles }}
           patchRef={null}
+          shop={shop}
         />
       ))}
-      <PatchMeasurer patchList={patchList} style={extraStyles} onPatchSizesMeasured={handlePatchSizesMeasured} />
+      <PatchMeasurer patchList={patchList} style={extraStyles} onPatchSizesMeasured={handlePatchSizesMeasured} shop={shop} />
     </div>
   );
-      // <Img src={staticFile('ozon-overlay.png')} style={{position: 'absolute', top: 0}}  />
+      // <Img src={staticFile('ozon-overlay.png')} style={{position: 'absolute', top: 0}} />
 }

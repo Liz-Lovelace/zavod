@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PatchWrapper from './patches/PatchWrapper';
 
-export function PatchMeasurer({ patchList, style, onPatchSizesMeasured }) {
+export function PatchMeasurer({ patchList, style, onPatchSizesMeasured, shop }) {
   const patchRefs = patchList.map(() => useRef(null));
 
   useEffect(() => {
@@ -24,6 +24,7 @@ export function PatchMeasurer({ patchList, style, onPatchSizesMeasured }) {
           patchData={patchData.toUpperCase()}
           patchRef={patchRefs[index]}
           style={style}
+          shop={shop}
         />
       ))}
     </div>

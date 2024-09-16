@@ -14,7 +14,6 @@ export async function composeTasks(client) {
   await createClientJson();
   return;
   */
-  
 
   // IMAGE DOWNLOADING AND ANALYSIS
   // let pureItemsOptions = client ? { where: { client } } : {};
@@ -109,7 +108,7 @@ async function renderImageTasks(images) {
       }
       */
 
-      if (!['homedecor'].includes(shopName)) {
+      if (!['donplafon'].includes(shopName)) {
         return;
       }
 

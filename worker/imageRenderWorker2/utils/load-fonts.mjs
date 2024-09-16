@@ -7,6 +7,10 @@ const fonts = [
     'handel',
     `url('${staticFile('handel.ttf')}') format('truetype')`,
   ),
+  new FontFace(
+    'pppangram',
+    `url('${staticFile('pppangram.otf')}') format('opentype')`,
+  ),
 ];
  
 Promise.all(fonts.map(font => font.load()))

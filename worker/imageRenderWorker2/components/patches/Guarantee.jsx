@@ -16,7 +16,7 @@ export default function({ patchData, patchRef, position }) {
     <div ref={patchRef} style={patchStyle}>
       <div>
         <div style={textStyle}>{patchData}</div>
-        <div style={{fontSize: '29px'}}> ГАРАНТИЯ </div>
+        <div style={{fontSize: '35px'}}> ГАРАНТИЯ </div>
       </div>
     </div>
   );

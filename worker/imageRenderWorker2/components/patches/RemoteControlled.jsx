@@ -10,12 +10,10 @@ function IconSVG({ color }) {
   );
 }
 
-export default function RemoteControlled({ patchRef }) {
-  let color = '#013eb1'
+export default function RemoteControlled({ patchRef, patchColor }) {
   const patchStyle = {
     display: 'flex',
     alignItems: 'flex-end',
-    fontSize: '50px',
   };
 
   const textStyle = {
@@ -24,7 +22,7 @@ export default function RemoteControlled({ patchRef }) {
 
   return (
     <div ref={patchRef} style={patchStyle}>
-      <IconSVG color={color} />
+      <IconSVG color={patchColor} />
       <div style={textStyle}>ПУЛЬТ ДУ</div>
     </div>
   );

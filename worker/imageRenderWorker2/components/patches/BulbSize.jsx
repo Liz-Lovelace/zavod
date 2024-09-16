@@ -10,8 +10,7 @@ function IconSVG({ color }) {
 }
 
 
-export default function({ patchData, patchRef }) {
-  let color = '#013eb1'
+export default function({ patchData, patchRef, patchColor }) {
   const patchStyle = {
     display: 'flex',
     alignItems: 'flex-end',
@@ -23,7 +22,7 @@ export default function({ patchData, patchRef }) {
 
   return (
     <div ref={patchRef} style={patchStyle}>
-      <IconSVG color={color} />
+      <IconSVG color={patchColor} />
       <div style={textStyle}>{patchData}</div>
     </div>
   );

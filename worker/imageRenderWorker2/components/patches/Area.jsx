@@ -8,12 +8,11 @@ export default function Area({ patchData, patchRef, position }) {
   };
 
   const areaStyle = {
-    fontSize: '50px',
     marginBottom: '10px',
   };
 
   const textStyle = {
-    fontSize: '29px',  
+    fontSize: '35px',  
   };
 
   return (
