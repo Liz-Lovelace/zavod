@@ -7,8 +7,6 @@ import config from '../config.mjs';
 
 let pureItemGetters = {
   'donplafon': getDonplafonPures,
-  'vamsvet': getVamsvetPures,
-  'meloman': getMelomanPures,
 };
 
 await updateAllPures();
@@ -18,8 +16,6 @@ async function updateAllPures() {
     await dumpPureItems();
     console.log(chalk.red('PureItem db dumped'));
   }
-  // await updateClientPures('vamsvet');
-  // await updateClientPures('meloman');
   await updateClientPures('donplafon');
 }
 
@@ -28,34 +24,37 @@ export default async function updateClientPures(client) {
   console.time('full pures update');
 
   let batch = [];
-
-  const existingIds = new Set(await getAllPureItemIds());
+  let totalNewItems = 0;
+  let totalUpdatedItems = 0;
+  let totalUnchangedItems = 0;
 
   let i = 0;
-  let totalNewItems = 0;
   for await (const pureItem of pureItemGetters[client]()) {
-    if (++i % 10000 == 0) {
-      console.log(i, `${client} items processed`);
-    }
-
-    if (existingIds.has(pureItem.id)) {
-      continue;
-    }
+    i++
 
     batch.push(pureItem);
-    existingIds.add(pureItem.id);
 
     if (batch.length === 1000) {
-      await savePureItems(batch);
-      totalNewItems += batch.length;
+      const result = await savePureItems(batch);
+      console.log(i, `${client} items processed`);
+      totalNewItems += result.newItemsCount;
+      totalUpdatedItems += result.updatedItemsCount;
+      totalUnchangedItems += result.unchangedItemsCount;
       batch = [];
     }
   }
 
   // Save any remaining items in the batch
-  await savePureItems(batch);
-  totalNewItems += batch.length;
+  if (batch.length > 0) {
+    const result = await savePureItems(batch);
+    totalNewItems += result.newItemsCount;
+    totalUpdatedItems += result.updatedItemsCount;
+    totalUnchangedItems += result.unchangedItemsCount;
+  }
 
   console.timeEnd('full pures update');
-  console.log(chalk.green(`Saved ${totalNewItems} new ${client} pure items`));
+  console.log(chalk.green(`Processed ${i} ${client} pure items`));
+  console.log(chalk.green(`Created ${totalNewItems} new items`));
+  console.log(chalk.green(`Updated ${totalUpdatedItems} items`));
+  console.log(chalk.green(`Unchanged ${totalUnchangedItems} items`));
 }
