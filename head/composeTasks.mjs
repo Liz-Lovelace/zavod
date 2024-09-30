@@ -93,7 +93,7 @@ async function renderImageTasks(images) {
 
   let tasks = [];
   // listObjects takes a while on high-latency internet, you can remove it for testing
-  // let renderedImages = new Set(await listObjects(process.env.S3_IMAGERENDER_BUCKET_NAME));
+  let renderedImages = new Set(await listObjects(process.env.S3_IMAGERENDER_BUCKET_NAME));
   images.forEach((image) => {
     let downloadURL = cachedImageURLfromRemoteURL(image.url);
     image.pureItem.shops.forEach(({ shop, ozonId }) => {
@@ -107,11 +107,9 @@ async function renderImageTasks(images) {
 
       let uploadFilename = renderedImageFilename(shop, image.pureItem.offerId, ozonId, image.url);
 
-      /*
       if (renderedImages.has(uploadFilename)) {
         return;
       }
-        */
 
       tasks.push({
         task: 'renderImage',
