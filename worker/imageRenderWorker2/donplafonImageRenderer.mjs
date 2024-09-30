@@ -23,7 +23,7 @@ let patchNameFromProp = {
   'Световой поток, лм':'Lumens',
   'Степень защиты (IP)':'Protection',
   'Страна':'Country',
-  'Цвет свечения':'ColorTone',
+  // 'Цвет свечения':'ColorTone', disabled because it's always in pair with temperature
   'Тип крепления':'Attachment',
   'Цветовая температура':'ColorTemperature',
   'Возможность подключения диммера':'Dimmer',
@@ -45,7 +45,6 @@ export async function imageRenderWorker({ shop, uploadFilename, downloadURL, ave
   }))
 
   let categoryTitle = prettifyCategoryTitle(subcategory)
-
 
   /*
   if (!patches.some((p => p.patchName == 'LowCeiling'))){

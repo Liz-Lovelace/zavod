@@ -110,11 +110,10 @@ const PatchWrapper = ({ patchName, patchData, patchColor, style, patchRef, posit
     };
 
     if (patchName === 'CategoryTitle') {
-      roomDecorStyle.transformOrigin = 'right';
-      roomDecorStyle.marginTop = '-349px';
+      roomDecorStyle.transformOrigin = 'left';
     }
 
-    if (!(style.right && style.bottom)) {
+    if (style.right && style.top || style.left && style.bottom) {
       roomDecorStyle.backgroundColor = '#5791f4d0';
       roomDecorStyle.boxShadow = '#0002 10px 10px 0';
     }

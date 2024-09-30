@@ -35,15 +35,17 @@ export function Main({ downloadURL, patches, categoryTitle, medianEdgeBrightness
   downloadURL = 'https://source-image-cache.ams1.vultrobjects.com/aHR0cHM6Ly9wYXJ0bmVycy5kb25wbGFmb24ucnUvdXBsb2FkL2libG9jay8zYWUvbmZ0ZjJ3c3J3bXA5eHRoeWNoMWNvNHVnbXB6a2IwdmQvcG9kdmVzbmF5YV9seXVzdHJhX2x1c3NvbGVfY3JlbnNoYXdfbHNwXzcwMDkuanBn.jpg';
 
   patches = [
-    { patchName: 'Diameter', patchData: 'Однофазный' },
-    { patchName: 'Diameter', patchData: 'Трехфазный' },
+    { patchName: 'Power', patchData: '000' },
+    { patchName: 'Power', patchData: '0000000000' },
+    { patchName: 'Power', patchData: '000100' },
+    { patchName: 'Power', patchData: '00' },
   ]
   categoryTitle = 'Настенный бра'
   medianEdgeBrightness = 255;
   // shop = 'homedecor'
   // shop = 'donplafon'
-  // shop = 'roomdecor'
-  shop = 'lampochki'
+  shop = 'roomdecor'
+  // shop = 'lampochki'
   */
 
   let backgroundColor = (medianEdgeBrightness == 255 || medianEdgeBrightness == 0) ?
@@ -81,12 +83,13 @@ export function Main({ downloadURL, patches, categoryTitle, medianEdgeBrightness
   const handlePatchSizesMeasured = (sizes) => {
     setPatchSizes(sizes);
     
-    let sortedPatches = [...patchList].sort((a, b) => {
+    let sortedPatches = [...patchList];
+    let firstThreePatches = sortedPatches.slice(0, 3).sort((a, b) => {
       const aWidth = sizes[patchList.indexOf(a)]?.width || 0;
       const bWidth = sizes[patchList.indexOf(b)]?.width || 0;
-
       return bWidth - aWidth;
     });
+    sortedPatches = [...firstThreePatches, ...sortedPatches.slice(3)];
 
     if (sortedPatches.length > 2) {
       sortedPatches = sortedPatches.filter((patch, index) => {

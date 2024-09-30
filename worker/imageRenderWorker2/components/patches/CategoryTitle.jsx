@@ -41,8 +41,8 @@ export default function({ patchData, style, shop }) {
   } else if (shop === 'roomdecor') {
     patchStyle = {
       ...patchStyle,
-      paddingTop: '210px',
-      zoom: 1.3,
+      marginTop: '105px',
+      zoom: 1.2,
       lineHeight: 1.19,
       color: '#1d0156',
     };
