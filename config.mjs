@@ -1,5 +1,5 @@
 let config = {
-  serverCount: 10,
+  serverCount: 18,
   mockCompute: true,
   dumpDB: false,
   debugImageRenderer: true,

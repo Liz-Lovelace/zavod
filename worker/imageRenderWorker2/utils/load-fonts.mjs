@@ -11,6 +11,14 @@ const fonts = [
     'pppangram',
     `url('${staticFile('pppangram.otf')}') format('opentype')`,
   ),
+  new FontFace(
+    'montserrat',
+    `url('${staticFile('montserrat-bold.ttf')}') format('truetype')`,
+  ),
+  new FontFace(
+    'futura',
+    `url('${staticFile('futura-demi.ttf')}') format('truetype')`,
+  ),
 ];
  
 Promise.all(fonts.map(font => font.load()))

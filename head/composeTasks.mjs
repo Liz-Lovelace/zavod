@@ -16,10 +16,12 @@ export async function composeTasks(client) {
   */
 
   // IMAGE DOWNLOADING AND ANALYSIS
-  // let pureItemsOptions = client ? { where: { client } } : {};
-  // let pureItems = await getPureItems(pureItemsOptions);
+  /*
+  let pureItemsOptions = client ? { where: { client } } : {};
+  let pureItems = await getPureItems(pureItemsOptions);
   // let tasks = await downloadImageTasks(pureItems);
-  // let tasks = await analyzeImageTasks(pureItems);
+  let tasks = await analyzeImageTasks(pureItems);
+  */
 
   // VIDEO RENDERING
   /*
@@ -44,7 +46,6 @@ export async function composeTasks(client) {
   images.forEach(image => {
     image.pureItem = unpackagePureItem(image.pureItem);
   });
-  images = images.filter(image => image.medianEdgeBrightness == 255);
   let tasks = await renderImageTasks(images);
 
   shuffle(tasks);
@@ -56,7 +57,7 @@ async function renderVideoTasks(pureItems) {
   // listObjects takes a while on high-latency internet, you can remove it for testing
   // let renderedVideos = new Set(await listObjects(process.env.S3_VIDEORENDER_BUCKET_NAME));
   pureItems.forEach((pureItem) => {
-    pureItem.images = pureItem.images.filter(image => image.uniqueAllColorsCount > 2000 || image.error)
+    pureItem.images = pureItem.images.filter(image => !image.error && ( image.index == 0 || image.uniqueAllColorsCount > 2000))
 
     if (pureItem.images.length < 3) {
       return;
@@ -67,12 +68,13 @@ async function renderVideoTasks(pureItems) {
     })
 
     let uploadFilename = `${pureItem.offerId}.mp4`;
+    let uploadURL = renderedVideoURLfromFilename(uploadFilename);
 
     /*
     if (renderedVideos.has(uploadFilename)) {
       return;
     }
-    */
+      */
 
     tasks.push({
       task: 'renderVideo',
@@ -83,14 +85,15 @@ async function renderVideoTasks(pureItems) {
     });
   });
 
-  // return Array(1000).fill(tasks.find(t => t.taskData.offerId == 364230))
-
   return tasks;
 }
 async function renderImageTasks(images) {
+  // images = images.filter(image => image.medianEdgeBrightness == 255 || (image.medianEdgeBrightness > 190 && image.uniqueEdgeColorsCount < 30));
+  images = images.filter(image => image.medianEdgeBrightness == 255);
+
   let tasks = [];
   // listObjects takes a while on high-latency internet, you can remove it for testing
-  let renderedImages = new Set(await listObjects(process.env.S3_IMAGERENDER_BUCKET_NAME));
+  // let renderedImages = new Set(await listObjects(process.env.S3_IMAGERENDER_BUCKET_NAME));
   images.forEach((image) => {
     let downloadURL = cachedImageURLfromRemoteURL(image.url);
     image.pureItem.shops.forEach(({ shop, ozonId }) => {
@@ -102,21 +105,13 @@ async function renderImageTasks(images) {
       }[shop];
 
 
-      /*
-      if (!['roomdecor', 'lampochki'].includes(shopName)) {
-        return;
-      }
-      */
-
-      if (!['donplafon'].includes(shopName)) {
-        return;
-      }
-
       let uploadFilename = renderedImageFilename(shop, image.pureItem.offerId, ozonId, image.url);
 
+      /*
       if (renderedImages.has(uploadFilename)) {
         return;
       }
+        */
 
       tasks.push({
         task: 'renderImage',

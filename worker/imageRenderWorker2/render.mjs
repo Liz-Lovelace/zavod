@@ -18,7 +18,7 @@ export async function render(inputProps) {
   let media = await renderStill({
     composition,
     serveUrl: bundleLocation,
-    logLevel: 'verbose',
+    // logLevel: 'verbose',
     inputProps,
     jpegQuality: 100,
     imageFormat: 'jpeg',

@@ -10,19 +10,21 @@ function IconSVG({ color }) {
   );
 }
 
-export default function RemoteControlled({ patchRef, patchColor }) {
+export default function RemoteControlled({ patchRef, patchColor, shop }) {
+  const isRoomDecor = shop === 'roomdecor';
+
   const patchStyle = {
     display: 'flex',
     alignItems: 'flex-end',
   };
 
   const textStyle = {
-    marginLeft: '8px',
+    ...(isRoomDecor ? {} : { marginLeft: '8px' }),
   };
 
   return (
     <div ref={patchRef} style={patchStyle}>
-      <IconSVG color={patchColor} />
+      {!isRoomDecor && <IconSVG color={patchColor} />}
       <div style={textStyle}>ПУЛЬТ ДУ</div>
     </div>
   );

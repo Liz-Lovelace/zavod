@@ -25,15 +25,17 @@ function IconSVG({ color }) {
   );
 }
 
+export default function({ patchData, patchRef, patchColor, shop }) {
+  const isRoomDecor = shop === 'roomdecor';
 
-export default function({ patchData, patchRef, patchColor }) {
   const patchStyle = {
     display: 'flex',
     alignItems: 'flex-end',
+    ...(isRoomDecor && { flexDirection: 'row-reverse' }),
   };
 
   const textStyle = {
-    marginRight: '15px',
+    ...(isRoomDecor ? {} : { marginRight: '15px' }),
   };
 
   let text = `${patchData} ${multipleNoun(parseInt(patchData), 'ЛАМПА', 'ЛАМПЫ', 'ЛАМП')}`
@@ -41,7 +43,7 @@ export default function({ patchData, patchRef, patchColor }) {
   return (
     <div ref={patchRef} style={patchStyle}>
       <div style={textStyle}>{text}</div>
-      <IconSVG color={patchColor} />
+      {!isRoomDecor && <IconSVG color={patchColor} />}
     </div>
   );
 }

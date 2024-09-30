@@ -12,6 +12,17 @@ import Guarantee from './Guarantee';
 import WireLength from './WireLength';
 import StretchyCeiling from './StretchyCeiling';
 import LowCeiling from './LowCeiling';
+import RoomDecorTextPatch from './RoomDecorTextPatch';
+import Country from './Country';
+import Protection from './Protection';
+import Diameter from './Diameter';
+import Lumens from './Lumens';
+import Dimmer from './Dimmer';
+import ColorTemperature from './ColorTemperature';
+import ColorTone from './ColorTone';
+import Attachment from './Attachment';
+import Bus from './Bus';
+import Phases from './Phases';
 
 const PatchWrapper = ({ patchName, patchData, patchColor, style, patchRef, position, shop }) => {
   let PatchComponent;
@@ -30,13 +41,23 @@ const PatchWrapper = ({ patchName, patchData, patchColor, style, patchRef, posit
     'WireLength': WireLength,
     'StretchyCeiling': StretchyCeiling,
     'LowCeiling': LowCeiling,
+    'Country': Country,
+    'Protection': Protection,
+    'Diameter': Diameter,
+    'Lumens': Lumens,
+    'Dimmer': Dimmer,
+    'ColorTemperature': ColorTemperature,
+    'ColorTone': ColorTone,
+    'Attachment': Attachment,
+    'Bus': Bus,
+    'Phases': Phases,
   }
   
   PatchComponent = patchFromName[patchName];
 
   if (!PatchComponent) {
     throw `unknown patch name: "${patchName}"`
-  }
+  } 
   
   const baseStyle = {
     position: 'absolute',
@@ -44,7 +65,7 @@ const PatchWrapper = ({ patchName, patchData, patchColor, style, patchRef, posit
     ...style,
   };
 
-  const getHomeDecorStyle = (style) => {
+  const getHomeDecorLampochkiStyle = (style) => {
     const homeDecorStyle = {
       ...baseStyle,
       backgroundColor: '#fff8',
@@ -81,9 +102,31 @@ const PatchWrapper = ({ patchName, patchData, patchColor, style, patchRef, posit
     return donPlafonStyle;
   };
 
+  const getRoomDecorStyle = (style) => {
+    const roomDecorStyle = {
+      ...baseStyle,
+      // boxShadow: '#cccde5 0 2px 2px',
+      transform: 'skewY(-15.9deg)',
+    };
+
+    if (patchName === 'CategoryTitle') {
+      roomDecorStyle.transformOrigin = 'right';
+      roomDecorStyle.marginTop = '-349px';
+    }
+
+    if (!(style.right && style.bottom)) {
+      roomDecorStyle.backgroundColor = '#5791f4d0';
+      roomDecorStyle.boxShadow = '#0002 10px 10px 0';
+    }
+
+    return roomDecorStyle;
+  };
+
   const wrapperStyleFunctions = {
-    homedecor: getHomeDecorStyle,
+    homedecor: getHomeDecorLampochkiStyle,
     donplafon: getDonPlafonStyle,
+    lampochki: getHomeDecorLampochkiStyle,
+    roomdecor: getRoomDecorStyle,
   };
 
   const wrapperStyle = wrapperStyleFunctions[shop](style, patchName)

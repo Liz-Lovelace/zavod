@@ -10,7 +10,9 @@ function IconSVG({ color }) {
 }
 
 
-export default function({ patchData, patchRef, patchColor }) {
+export default function({ patchData, patchRef, patchColor, shop }) {
+  const isRoomDecor = shop === 'roomdecor';
+
   const patchStyle = {
     display: 'flex',
     alignItems: 'flex-end',

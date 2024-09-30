@@ -8,10 +8,13 @@ function IconSVG({ color }) {
   );
 }
 
-export default function({ patchData, patchRef, patchColor }) {
+export default function({ patchData, patchRef, patchColor, shop, position }) {
+  const isRoomDecor = shop === 'roomdecor';
+
   const patchStyle = {
     display: 'flex',
     alignItems: 'flex-end',
+    justifyContent: position?.right ? 'flex-end' : 'flex-start'
   };
 
   const textStyle = {

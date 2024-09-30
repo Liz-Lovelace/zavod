@@ -8,7 +8,9 @@ function IconSVG({ color }) {
   );
 }
 
-export default function({ patchData, patchRef, patchColor }) {
+export default function({ patchData, patchRef, patchColor, shop, position }) {
+  const isRoomDecor = shop === 'roomdecor';
+
   const patchStyle = {
     display: 'flex',
     alignItems: 'flex-end',
@@ -16,7 +18,7 @@ export default function({ patchData, patchRef, patchColor }) {
 
   const textStyle = {
     marginLeft: '15px',
-    marginBottom: '-9px',
+    marginBottom: '-9px'
   };
 
   return (
