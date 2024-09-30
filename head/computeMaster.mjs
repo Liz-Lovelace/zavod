@@ -37,6 +37,7 @@ apt install /worker/imageRenderWorker/fonts-montserrat.deb &>> /root/errors.txt
 while true
 do
   npm run worker &>> /root/errors.txt
+  rm -r /tmp/remotion-*
 done`;
 
 export async function createServer() {
