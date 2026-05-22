@@ -9,7 +9,7 @@ import { FlavorText } from './FlavorText';
 import { Title } from './Title';
 import { Debug } from './Debug';
 
-export function Main({ version, images, itemInfo, flavorTexts, title }) {
+export function Main({ version, images, itemInfo, flavorTexts, title, slideImgStyle }) {
   const { durationInFrames } = useVideoConfig();
   const transitionDuration = 20;
   const totalImages = images.length;
@@ -21,7 +21,7 @@ export function Main({ version, images, itemInfo, flavorTexts, title }) {
         {images.map((image, index) => (
           <>
             <TransitionSeries.Sequence durationInFrames={imageDuration + transitionDuration}>
-              <PlafonImage image={image} index={index}/>
+              <PlafonImage image={image} index={index} slideImgStyle={slideImgStyle}/>
               { index == 0 ?
                 <Title text={title} /> :
                 <FlavorText text={flavorTexts[index - 1]} index={index - 1}/>

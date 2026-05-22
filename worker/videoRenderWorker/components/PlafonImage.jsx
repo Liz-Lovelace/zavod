@@ -2,7 +2,7 @@ import React from 'react';
 import { Img, staticFile, AbsoluteFill, useCurrentFrame, useVideoConfig } from 'remotion';
 import { interpolateStyles } from '@remotion/animation-utils';
 
-export function PlafonImage({ image, index }) {
+export function PlafonImage({ image, index, slideImgStyle }) {
   const { durationInFrames } = useVideoConfig();
 
   const alternator = index % 2 == 0 ? -1 : 1;
@@ -39,6 +39,7 @@ export function PlafonImage({ image, index }) {
     width: '100%',
     height: '100%',
     objectFit: 'contain',
+    ...slideImgStyle,
   }
 
   let averageEdgeColor = image.averageEdgeColor.split('|')

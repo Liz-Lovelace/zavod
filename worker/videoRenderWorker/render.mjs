@@ -3,7 +3,7 @@ import { bundle } from '@remotion/bundler';
 
 export async function render(inputProps) {
   console.time('bundle');
-  // todo: the bundle thing really feels like something we should not be doing twice
+  // todo: the bundle thing really feels like something we should not be doing twice. The docs explicitly say that it should be cached.
   const bundleLocation = await bundle({ entryPoint: './worker/videoRenderWorker/index.jsx' });
   console.timeEnd('bundle');
 

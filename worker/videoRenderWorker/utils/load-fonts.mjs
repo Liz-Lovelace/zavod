@@ -12,6 +12,10 @@ const fonts = [
     `url('${staticFile('euclid-triangle-medium.woff')}') format('woff')`,
   ),
   new FontFace(
+    'Futura Light',
+    `url('${staticFile('futura-light.ttf')}') format('truetype')`,
+  ),
+  new FontFace(
     'Debug',
     `url('${staticFile('mono-regular.ttf')}') format('truetype')`,
   ),
